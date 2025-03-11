@@ -1,10 +1,9 @@
 package com.project.clothingaggregator.controller;
 
 import com.project. clothingaggregator.model.User;
-import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.Map;
+import com.project. clothingaggregator.service.UserService;
 import java.util.Optional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,29 +14,24 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class UserController {
 
-    private final Map<Integer, User> userDatabase = new HashMap<>();
+    private final UserService userService;
 
-    public UserController() {
-        userDatabase.put(1, new User(1, "Igor", LocalDate.of(1990, 1, 1), "igor@example.com"));
-        userDatabase.put(2, new User(2, "Bob", LocalDate.of(1985, 5, 15), "bob@mail.ru"));
-        userDatabase.put(3, new User(3, "John", LocalDate.of(2004, 7, 25), "john@gmail.com"));
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping("/user")
     public ResponseEntity<User> getUserInfoByName(@RequestParam(value = "name") String name) {
-        Optional<User> user = userDatabase.values().stream()
-                .filter(u -> u.getName().equalsIgnoreCase(name))
-                .findFirst();
+        Optional<User> user = userService.findByName(name);
         return user.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     @GetMapping("/user/{id}")
     public ResponseEntity<User> getUserInfoById(@PathVariable int id) {
-        User user = userDatabase.get(id);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return ResponseEntity.ok(user);
+        Optional<User> user = userService.getUserById(id);
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 }
