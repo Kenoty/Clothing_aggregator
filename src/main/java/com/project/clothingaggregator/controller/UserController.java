@@ -4,6 +4,7 @@ import com.project. clothingaggregator.model.User;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,16 +24,16 @@ public class UserController {
     }
 
     @GetMapping("/user")
-    public ResponseEntity<User> getUserInfoWithQueryParam(@RequestParam(value = "id") int id) {
-        User user = userDatabase.get(id);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        }
-        return ResponseEntity.ok(user);
+    public ResponseEntity<User> getUserInfoByName(@RequestParam(value = "name") String name) {
+        Optional<User> user = userDatabase.values().stream()
+                .filter(u -> u.getName().equalsIgnoreCase(name))
+                .findFirst();
+        return user.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUserInfoWithPathParam(@PathVariable int id) {
+    public ResponseEntity<User> getUserInfoById(@PathVariable int id) {
         User user = userDatabase.get(id);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
