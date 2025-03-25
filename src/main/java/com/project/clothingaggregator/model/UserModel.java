@@ -2,18 +2,20 @@ package com.project.clothingaggregator.model;
 
 import java.time.LocalDate;
 
-public class User {
+public class UserModel {
     private int id;
     private String name;
     private LocalDate birthday;
     private String email;
 
-    public User(int id, String name, LocalDate birthday, String email) {
+    public UserModel(int id, String name, LocalDate birthday, String email) {
         this.id = id;
         this.name = name;
         this.birthday = birthday;
         this.email = email;
     }
+
+    public UserModel() {}
 
     public void setId(int userId) {
         this.id = userId;
