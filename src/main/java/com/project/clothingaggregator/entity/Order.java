@@ -1,12 +1,15 @@
 package com.project.clothingaggregator.entity;
 
 import jakarta.persistence.*;
+import java.math.BigDecimal;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
-import java.math.BigDecimal;
-
+@Setter
+@Getter
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -31,44 +34,7 @@ public class Order {
     @Column(name = "shipping_address", nullable = false, length = Integer.MAX_VALUE)
     private String shippingAddress;
 
-    public Integer getId() {
-        return id;
+    public void addItem(OrderItem item) {
+        item.setOrder(this);
     }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
-
-    public String getShippingAddress() {
-        return shippingAddress;
-    }
-
-    public void setShippingAddress(String shippingAddress) {
-        this.shippingAddress = shippingAddress;
-    }
-
 }

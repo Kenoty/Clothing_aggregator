@@ -1,10 +1,17 @@
 package com.project.clothingaggregator.controller;
 
+import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.entity.Order;
+import com.project.clothingaggregator.entity.OrderItem;
+import com.project.clothingaggregator.entity.Product;
 import com.project.clothingaggregator.entity.User;
+import com.project.clothingaggregator.exception.NotFoundException;
+import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.mapper.OrderMapper;
+import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.OrderRepository;
+import com.project.clothingaggregator.repository.ProductRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +28,12 @@ public class OrderController {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody OrderRequest orderRequest) {
@@ -76,5 +89,22 @@ public class OrderController {
         }
         orderRepository.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<OrderItem> addItemToOrder(
+            @PathVariable Integer orderId,
+            @RequestBody OrderItemRequest request) {
+
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        order.addItem(new OrderItem(product));
+
+        Order updatedOrder = orderRepository.save(order);
+        return ResponseEntity.ok(orderItemRepository.save(OrderItemMapper.toEntity(product, order)));
     }
 }

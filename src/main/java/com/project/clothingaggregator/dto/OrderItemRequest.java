@@ -1,5 +1,6 @@
 package com.project.clothingaggregator.dto;
 
+import com.project.clothingaggregator.entity.Order;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,4 +8,5 @@ import lombok.Setter;
 @Getter
 public class OrderItemRequest {
     private Integer productId;
+    private Order order;
 }

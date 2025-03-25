@@ -11,9 +11,9 @@ public class OrderMapper {
         Order order = new Order();
         order.setUser(user.orElseThrow(() ->
                 new NotFoundException("User not found")));
-        order.setStatus(order.getStatus());
-        order.setTotalAmount(order.getTotalAmount());
-        order.setShippingAddress(order.getShippingAddress());
+        order.setStatus(request.getStatus());
+        order.setTotalAmount(request.getTotalAmount());
+        order.setShippingAddress(request.getShippingAddress());
         return order;
     }
 }

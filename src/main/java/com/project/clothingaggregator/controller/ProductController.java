@@ -35,15 +35,18 @@ public class ProductController {
         return productRepository.findAll(pageable);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     public ResponseEntity<Product> updateProduct(
+            @PathVariable Integer id,
             @RequestBody ProductRequest productRequest) {
 
-        if (!productRepository.existsById(productRequest.getProductId())) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        if (optionalProduct.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(productRepository.save(ProductMapper.toEntity(productRequest)));
+        return ResponseEntity.ok(productRepository
+                .save(ProductMapper.updateFromRequest(productRequest, optionalProduct)));
     }
 
     @DeleteMapping("/{id}")

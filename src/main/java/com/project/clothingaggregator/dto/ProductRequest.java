@@ -7,7 +7,6 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ProductRequest {
-    private Integer productId;
     private String externalId;
     private String sourceSystem;
     private String name;

@@ -22,19 +22,6 @@ public class OrderItemController {
     @Autowired
     private ProductRepository productRepository;
 
-    @PostMapping
-    public ResponseEntity<OrderItem> createOrderItem(
-            @RequestBody OrderItemRequest orderItemRequest) {
-        Optional<Product> productOptional = productRepository
-                .findById(orderItemRequest.getProductId());
-        if (productOptional.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(orderItemRepository
-                .save(OrderItemMapper.toEntity(productOptional)));
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<OrderItem> getOrderItemById(@PathVariable Integer id) {
         Optional<OrderItem> orderItemOptional = orderItemRepository.findById(id);
