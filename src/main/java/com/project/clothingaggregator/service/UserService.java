@@ -69,24 +69,19 @@ public class UserService {
     }
 
     public Page<UserWithOrdersDto> getAllUsersWithOrdersAndProducts(int page, int size) {
-        // 1. Получаем страницу пользователей с заказами
         Page<User> users = userRepository.findAllWithOrders(PageRequest.of(page, size));
 
-        // 2. Собираем ID всех заказов
         List<Integer> orderIds = users.stream()
                 .flatMap(u -> u.getOrders().stream())
                 .map(Order::getId)
                 .collect(Collectors.toList());
 
         if (!orderIds.isEmpty()) {
-            // 3. Загружаем заказы с элементами
             List<Order> ordersWithItems = orderRepository.findOrdersWithItems(orderIds);
 
-            // 4. Создаем карту для быстрого доступа
             Map<Integer, Order> orderMap = ordersWithItems.stream()
                     .collect(Collectors.toMap(Order::getId, Function.identity()));
 
-            // 5. Обновляем заказы у пользователей
             users.getContent().forEach(user ->
                     user.getOrders().forEach(order -> {
                         Order fullOrder = orderMap.get(order.getId());
@@ -97,25 +92,6 @@ public class UserService {
             );
         }
 
-        // 6. Маппим в DTO
         return users.map(UserMapper::toUserWithOrdersDto);
     }
-
-//    public Page<UserWithOrdersDto> getAllUsersWithOrdersAndProducts(int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size, Sort.by("id"));
-//        Page<User> users = userRepository.findAllWithOrders(pageable);
-//
-//        // Догружаем items для заказов
-//        List<Integer> orderIds = users.stream()
-//                .flatMap(u -> u.getOrders().stream())
-//                .map(Order::getId)
-//                .collect(Collectors.toList());
-//
-//        if (!orderIds.isEmpty()) {
-//            userRepository.findWithItemsByIdIn(orderIds);
-//        }
-//
-//        return users.map(UserMapper::toUserWithOrdersDto);
-//    }
-
 }

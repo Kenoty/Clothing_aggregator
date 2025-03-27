@@ -1,15 +1,16 @@
 package com.project.clothingaggregator.service;
 
-import com.project.clothingaggregator.dto.UserFavoriteRequest;
 import com.project.clothingaggregator.entity.Product;
 import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.entity.UserFavorite;
 import com.project.clothingaggregator.entity.UserFavoriteId;
+import com.project.clothingaggregator.exception.AlreadyExistsException;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.repository.ProductRepository;
 import com.project.clothingaggregator.repository.UserFavoriteRepository;
-import com.project.clothingaggregator.repository.UserRepository;
 import java.util.List;
+
+import com.project.clothingaggregator.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,39 +24,40 @@ public class UserFavoriteService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public UserFavorite addToFavorites(UserFavoriteRequest request) {
-        User user = userRepository.findById(request.getUserId())
+    public UserFavorite addToFavorites(Integer userId, Integer productId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
-
-        UserFavoriteId id = new UserFavoriteId(request.getUserId(), request.getProductId());
-
-        if (userFavoriteRepository.existsById(id)) {
-            throw new IllegalStateException("Product already in favorites");
+        if (userFavoriteRepository.existsById(new UserFavoriteId(userId, productId))) {
+            throw new AlreadyExistsException("Product already in favorites");
         }
 
         UserFavorite favorite = new UserFavorite();
-        favorite.setId(id);
+        favorite.setId(new UserFavoriteId(userId, productId));
         favorite.setUser(user);
         favorite.setProduct(product);
 
         return userFavoriteRepository.save(favorite);
     }
 
-    @Transactional
-    public void removeFromFavorites(UserFavoriteRequest request) {
-        if (!userFavoriteRepository.existsById_UserIdAndId_ProductId(request.getUserId(), request.getProductId())) {
-            throw new NotFoundException("Favorite not found");
-        }
-        userFavoriteRepository.deleteById_UserIdAndId_ProductId(request.getUserId(), request.getProductId());
-    }
-
+    @Transactional(readOnly = true)
     public List<UserFavorite> getUserFavorites(Integer userId) {
-        return userFavoriteRepository.findAllByUserId(userId);
+        return userFavoriteRepository.findByUserId(userId);
     }
 
-    public boolean isFavorite(UserFavoriteRequest request) {
-        return userFavoriteRepository.existsById_UserIdAndId_ProductId(request.getUserId(), request.getProductId());
+    @Transactional(readOnly = true)
+    public boolean isFavorite(Integer userId, Integer productId) {
+        return userFavoriteRepository.existsById(new UserFavoriteId(userId, productId));
+    }
+
+    @Transactional
+    public void removeFromFavorites(Integer userId, Integer productId) {
+        userFavoriteRepository.deleteById(new UserFavoriteId(userId, productId));
+    }
+
+    @Transactional(readOnly = true)
+    public long countUserFavorites(Integer userId) {
+        return userFavoriteRepository.countByUserId(userId);
     }
 }
