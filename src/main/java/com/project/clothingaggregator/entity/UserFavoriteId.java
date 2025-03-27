@@ -3,8 +3,12 @@ package com.project.clothingaggregator.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import java.util.Objects;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.Hibernate;
 
+@Setter
+@Getter
 @Embeddable
 public class UserFavoriteId implements java.io.Serializable {
     private static final long serialVersionUID = 138063364808096430L;
@@ -14,20 +18,7 @@ public class UserFavoriteId implements java.io.Serializable {
     @Column(name = "product_id", nullable = false)
     private Integer productId;
 
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Integer productId) {
-        this.productId = productId;
+    public UserFavoriteId() {
     }
 
     public UserFavoriteId(Integer userId, Integer productId) {

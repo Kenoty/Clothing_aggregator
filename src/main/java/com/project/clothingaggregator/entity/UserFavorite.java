@@ -1,9 +1,13 @@
 package com.project.clothingaggregator.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "user_favorites")
 public class UserFavorite {
@@ -22,29 +26,5 @@ public class UserFavorite {
     @OnDelete(action = OnDeleteAction.RESTRICT)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
-
-    public UserFavoriteId getId() {
-        return id;
-    }
-
-    public void setId(UserFavoriteId id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Product getProduct() {
-        return product;
-    }
-
-    public void setProduct(Product product) {
-        this.product = product;
-    }
 
 }

@@ -2,6 +2,7 @@ package com.project.clothingaggregator.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
@@ -33,6 +34,9 @@ public class Order {
 
     @Column(name = "shipping_address", nullable = false, length = Integer.MAX_VALUE)
     private String shippingAddress;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> items;
 
     public void addItem(OrderItem item) {
         item.setOrder(this);
