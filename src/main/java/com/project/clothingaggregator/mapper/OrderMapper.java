@@ -10,7 +10,7 @@ import org.modelmapper.ModelMapper;
 
 public class OrderMapper {
 
-    public final static ModelMapper modelMapper = new ModelMapper();
+    public static final ModelMapper modelMapper = new ModelMapper();
 
     public static Order toEntity(Optional<User> user, OrderRequest request) {
         Order order = new Order();

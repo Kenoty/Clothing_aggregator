@@ -7,7 +7,6 @@ import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.UserMapper;
-import com.project.clothingaggregator.model.UserModel;
 import com.project.clothingaggregator.repository.OrderRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import com.project.clothingaggregator.security.PasswordUtil;
@@ -15,12 +14,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 

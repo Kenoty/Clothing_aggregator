@@ -5,7 +5,7 @@ import com.project.clothingaggregator.entity.UserFavorite;
 
 public class UserFavoriteMapper {
 
-    public final static UserFavoriteDto toResponse(UserFavorite favorite) {
+    public static final UserFavoriteDto toResponse(UserFavorite favorite) {
         UserFavoriteDto dto = new UserFavoriteDto();
         dto.setUserId(favorite.getUser().getId());
         dto.setProductId(favorite.getProduct().getProductId());

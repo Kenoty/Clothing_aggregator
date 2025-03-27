@@ -8,7 +8,7 @@ import org.modelmapper.ModelMapper;
 
 public class OrderItemMapper {
 
-    public final static ModelMapper modelMapper = new ModelMapper();
+    public static final ModelMapper modelMapper = new ModelMapper();
 
     public static OrderItem toEntity(Product product, Order order) {
         OrderItem orderItem = new OrderItem();

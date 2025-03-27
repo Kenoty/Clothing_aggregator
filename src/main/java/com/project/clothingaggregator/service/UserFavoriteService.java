@@ -8,9 +8,8 @@ import com.project.clothingaggregator.exception.AlreadyExistsException;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.repository.ProductRepository;
 import com.project.clothingaggregator.repository.UserFavoriteRepository;
-import java.util.List;
-
 import com.project.clothingaggregator.repository.UserRepository;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +26,10 @@ public class UserFavoriteService {
     public UserFavorite addToFavorites(Integer userId, Integer productId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
-        Product product = productRepository.findById(productId)
+
+        final Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new NotFoundException("Product not found"));
+
         if (userFavoriteRepository.existsById(new UserFavoriteId(userId, productId))) {
             throw new AlreadyExistsException("Product already in favorites");
         }

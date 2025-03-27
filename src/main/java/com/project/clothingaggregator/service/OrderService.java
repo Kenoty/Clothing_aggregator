@@ -11,7 +11,6 @@ import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.mapper.OrderMapper;
-import com.project.clothingaggregator.mapper.ProductMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.OrderRepository;
 import com.project.clothingaggregator.repository.ProductRepository;
@@ -21,8 +20,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class OrderService {
 
     @Autowired
