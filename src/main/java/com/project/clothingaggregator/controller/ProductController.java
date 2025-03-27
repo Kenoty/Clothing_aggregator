@@ -2,12 +2,7 @@ package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.ProductDto;
 import com.project.clothingaggregator.dto.ProductRequest;
-import com.project.clothingaggregator.entity.Product;
-import com.project.clothingaggregator.exception.NotFoundException;
-import com.project.clothingaggregator.mapper.ProductMapper;
 import com.project.clothingaggregator.repository.ProductRepository;
-import java.util.Optional;
-
 import com.project.clothingaggregator.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -29,6 +24,7 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
     ProductService productService;
 
     @PostMapping

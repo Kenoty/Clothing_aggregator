@@ -10,9 +10,16 @@ import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.ProductRepository;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
 public class OrderItemService {
 
+    @Autowired
     private OrderItemRepository orderItemRepository;
+
+    @Autowired
     private ProductRepository productRepository;
 
     public OrderItemResponseDto getOrderItemById(Integer id) {

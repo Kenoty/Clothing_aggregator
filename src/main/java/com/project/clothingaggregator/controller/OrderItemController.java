@@ -26,6 +26,7 @@ public class OrderItemController {
     @Autowired
     private ProductRepository productRepository;
 
+    @Autowired
     OrderItemService orderItemService;
 
     @GetMapping("/{id}")
