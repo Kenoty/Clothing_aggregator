@@ -1,8 +1,10 @@
 package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.OrderItemRequest;
+import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.entity.OrderItem;
 import com.project.clothingaggregator.entity.Product;
+import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.ProductRepository;
@@ -23,20 +25,20 @@ public class OrderItemController {
     private ProductRepository productRepository;
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderItem> getOrderItemById(@PathVariable Integer id) {
-        Optional<OrderItem> orderItemOptional = orderItemRepository.findById(id);
-        return orderItemOptional.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    public ResponseEntity<OrderItemResponseDto> getOrderItemById(@PathVariable Integer id) {
+        return ResponseEntity.ok(OrderItemMapper.toResponse(orderItemRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"))));
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<OrderItem>> getItemsByOrderId(@PathVariable Integer orderId) {
-        List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
-        return ResponseEntity.ok(items);
+    public ResponseEntity<List<OrderItemResponseDto>> getItemsByOrderId(
+            @PathVariable Integer orderId) {
+        return ResponseEntity.ok(orderItemRepository
+                .findByOrderId(orderId).stream().map(OrderItemMapper::toResponse).toList());
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<OrderItem> updateOrderItem(
+    public ResponseEntity<OrderItemResponseDto> updateOrderItem(
             @PathVariable Integer id,
             @RequestBody OrderItemRequest orderItemRequest
     ) {
@@ -54,8 +56,7 @@ public class OrderItemController {
         OrderItem orderItem = orderItemOptional.get();
         orderItem.setProduct(productOptional.get());
 
-        OrderItem updatedOrderItem = orderItemRepository.save(orderItem);
-        return ResponseEntity.ok(updatedOrderItem);
+        return ResponseEntity.ok(OrderItemMapper.toResponse(orderItemRepository.save(orderItem)));
     }
 
     @DeleteMapping("/{id}")

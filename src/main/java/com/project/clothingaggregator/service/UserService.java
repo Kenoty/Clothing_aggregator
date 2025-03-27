@@ -68,13 +68,6 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-//    public List<UserWithOrdersDto> getAllUsersWithOrdersAndProducts() {
-//        List<User> users = userRepository.findAllWithOrdersAndProducts();
-//        return users.stream()
-//                .map(UserMapper::toUserWithOrdersDto)
-//                .toList();
-//    }
-
     public Page<UserWithOrdersDto> getAllUsersWithOrdersAndProducts(int page, int size) {
         // 1. Получаем страницу пользователей с заказами
         Page<User> users = userRepository.findAllWithOrders(PageRequest.of(page, size));

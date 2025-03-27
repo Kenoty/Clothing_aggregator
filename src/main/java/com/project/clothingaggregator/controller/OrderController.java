@@ -1,20 +1,13 @@
 package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.OrderItemRequest;
+import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.dto.OrderRequest;
+import com.project.clothingaggregator.dto.OrderResponseDto;
 import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.entity.OrderItem;
-import com.project.clothingaggregator.entity.Product;
-import com.project.clothingaggregator.entity.User;
-import com.project.clothingaggregator.exception.NotFoundException;
-import com.project.clothingaggregator.mapper.OrderItemMapper;
-import com.project.clothingaggregator.mapper.OrderMapper;
-import com.project.clothingaggregator.repository.OrderItemRepository;
-import com.project.clothingaggregator.repository.OrderRepository;
-import com.project.clothingaggregator.repository.ProductRepository;
-import com.project.clothingaggregator.repository.UserRepository;
+import com.project.clothingaggregator.service.OrderService;
 import java.util.List;
-import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,87 +17,34 @@ import org.springframework.web.bind.annotation.*;
 public class OrderController {
 
     @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest orderRequest) {
-        Optional<User> userOptional = userRepository.findById(orderRequest.getUserId());
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(orderRepository.save(OrderMapper.toEntity(userOptional, orderRequest)));
+    public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequest orderRequest) {
+        return orderService.createOrder(orderRequest);
     }
 
     @GetMapping("/user/{userId}")
-    public List<Order> getOrdersByUser(@PathVariable Integer userId) {
-        return orderRepository.findByUserId(userId);
+    public ResponseEntity<List<OrderResponseDto>> getOrdersByUser(@PathVariable Integer userId) {
+        return orderService.getOrders(userId);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(
+    public ResponseEntity<OrderResponseDto> updateOrder(
             @PathVariable Integer id,
-            @RequestBody OrderRequest orderRequest
-    ) {
-        Optional<Order> orderOptional = orderRepository.findById(id);
-        if (orderOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Order order = orderOptional.get();
-        if (orderRequest.getUserId() != null) {
-            Optional<User> userOptional = userRepository.findById(orderRequest.getUserId());
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-            order.setUser(userOptional.get());
-        }
-        if (orderRequest.getStatus() != null) {
-            order.setStatus(orderRequest.getStatus());
-        }
-        if (orderRequest.getTotalAmount() != null) {
-            order.setTotalAmount(orderRequest.getTotalAmount());
-        }
-        if (orderRequest.getShippingAddress() != null) {
-            order.setShippingAddress(orderRequest.getShippingAddress());
-        }
-
-        Order updatedOrder = orderRepository.save(order);
-        return ResponseEntity.ok(updatedOrder);
+            @RequestBody OrderRequest orderRequest) {
+        return orderService.updateOrder(id, orderRequest);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
-        if (!orderRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-        orderRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
+        return orderService.deleteOrder(id);
     }
 
     @PostMapping("/{orderId}/items")
-    public ResponseEntity<OrderItem> addItemToOrder(
+    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
             @PathVariable Integer orderId,
             @RequestBody OrderItemRequest request) {
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Order not found"));
-
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
-
-        order.addItem(new OrderItem(product));
-
-        Order updatedOrder = orderRepository.save(order);
-        return ResponseEntity.ok(orderItemRepository.save(OrderItemMapper.toEntity(product, order)));
+        return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
     }
 }

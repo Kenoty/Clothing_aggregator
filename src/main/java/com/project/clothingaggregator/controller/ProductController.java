@@ -1,7 +1,9 @@
 package com.project.clothingaggregator.controller;
 
+import com.project.clothingaggregator.dto.ProductDto;
 import com.project.clothingaggregator.dto.ProductRequest;
 import com.project.clothingaggregator.entity.Product;
+import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.ProductMapper;
 import com.project.clothingaggregator.repository.ProductRepository;
 import java.util.Optional;
@@ -19,24 +21,24 @@ public class ProductController {
     private ProductRepository productRepository;
 
     @PostMapping
-    public ResponseEntity<Product> createProduct(@RequestBody ProductRequest productRequest) {
-        return ResponseEntity.ok(productRepository.save(ProductMapper.toEntity(productRequest)));
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductRequest productRequest) {
+        return ResponseEntity.ok(ProductMapper.toResponse(productRepository
+                .save(ProductMapper.toEntity(productRequest))));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Product> getProduct(@PathVariable Integer id) {
-        Optional<Product> product = productRepository.findById(id);
-        return product.map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<ProductDto> getProduct(@PathVariable Integer id) {
+        return ResponseEntity.ok(ProductMapper.toResponse(productRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("User not found"))));
     }
 
     @GetMapping
-    public Page<Product> getAllProducts(Pageable pageable) {
-        return productRepository.findAll(pageable);
+    public Page<ProductDto> getAllProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).map(ProductMapper::toResponse);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Product> updateProduct(
+    public ResponseEntity<ProductDto> updateProduct(
             @PathVariable Integer id,
             @RequestBody ProductRequest productRequest) {
 
@@ -45,8 +47,8 @@ public class ProductController {
             return ResponseEntity.notFound().build();
         }
 
-        return ResponseEntity.ok(productRepository
-                .save(ProductMapper.updateFromRequest(productRequest, optionalProduct)));
+        return ResponseEntity.ok(ProductMapper.toResponse(productRepository
+                .save(ProductMapper.updateFromRequest(productRequest, optionalProduct))));
     }
 
     @DeleteMapping("/{id}")
