@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrderItemResponseDto {
-    private Integer id;
-    private Integer productId;
+    private Integer orderId;
+    private ProductDto productDto;
 }

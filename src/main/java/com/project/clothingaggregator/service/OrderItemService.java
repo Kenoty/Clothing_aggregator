@@ -1,5 +1,6 @@
 package com.project.clothingaggregator.service;
 
+import com.project.clothingaggregator.config.EbayConfig;
 import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.entity.OrderItem;
@@ -9,18 +10,23 @@ import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.ProductRepository;
 import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class OrderItemService {
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final ProductRepository productRepository;
 
-    @Autowired
-    private ProductRepository productRepository;
+    public OrderItemService(
+            OrderItemRepository orderItemRepository,
+            ProductRepository productRepository
+    ) {
+        this.orderItemRepository = orderItemRepository;
+        this.productRepository = productRepository;
+    }
 
     public OrderItemResponseDto getOrderItemById(Integer id) {
         return OrderItemMapper.toResponse(orderItemRepository.findById(id)

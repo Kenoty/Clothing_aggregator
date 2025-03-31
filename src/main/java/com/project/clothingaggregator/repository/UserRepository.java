@@ -12,6 +12,10 @@ import org.springframework.stereotype.Repository;
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     @EntityGraph(attributePaths = {"orders"})
-    @Query("SELECT u FROM User u")
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.orders")
     Page<User> findAllWithOrders(Pageable pageable);
+
+    @EntityGraph(attributePaths = {"favorites"})
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.favorites")
+    Page<User> findAllWithFavorites(Pageable pageable);
 }

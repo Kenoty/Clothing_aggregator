@@ -5,5 +5,5 @@ import lombok.Data;
 @Data
 public class UserFavoriteDto {
     private Integer userId;
-    private Integer productId;
+    private ProductDto productDto;
 }

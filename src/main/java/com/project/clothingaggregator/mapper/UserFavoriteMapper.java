@@ -5,10 +5,10 @@ import com.project.clothingaggregator.entity.UserFavorite;
 
 public class UserFavoriteMapper {
 
-    public static final UserFavoriteDto toResponse(UserFavorite favorite) {
+    public static UserFavoriteDto toResponse(UserFavorite favorite) {
         UserFavoriteDto dto = new UserFavoriteDto();
         dto.setUserId(favorite.getUser().getId());
-        dto.setProductId(favorite.getProduct().getProductId());
+        dto.setProductDto(ProductMapper.toResponse(favorite.getProduct()));
         return dto;
     }
 }
