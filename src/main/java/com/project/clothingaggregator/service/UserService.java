@@ -14,23 +14,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private OrderRepository orderRepository;
-
-    @Autowired
-    private PasswordUtil passwordUtil;
+    private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
+    private final PasswordUtil passwordUtil;
 
     public User createUser(UserRegistrationRequest request) {
         User user = new User();
@@ -64,8 +60,8 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    public Page<UserWithOrdersDto> getAllUsersWithOrdersAndProducts(int page, int size) {
-        Page<User> users = userRepository.findAllWithOrders(PageRequest.of(page, size));
+    public List<UserWithOrdersDto> getAllUsersWithOrdersAndProducts() {
+        List<User> users = userRepository.findAllWithOrders();
 
         List<Integer> orderIds = users.stream()
                 .flatMap(u -> u.getOrders().stream())
@@ -78,7 +74,7 @@ public class UserService {
             Map<Integer, Order> orderMap = ordersWithItems.stream()
                     .collect(Collectors.toMap(Order::getId, Function.identity()));
 
-            users.getContent().forEach(user ->
+            users.forEach(user ->
                     user.getOrders().forEach(order -> {
                         Order fullOrder = orderMap.get(order.getId());
                         if (fullOrder != null) {
@@ -88,6 +84,6 @@ public class UserService {
             );
         }
 
-        return users.map(UserMapper::toUserWithOrdersDto);
+        return users.stream().map(UserMapper::toUserWithOrdersDto).toList();
     }
 }

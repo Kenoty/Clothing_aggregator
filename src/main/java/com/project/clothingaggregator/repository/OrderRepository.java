@@ -15,4 +15,6 @@ public interface OrderRepository extends JpaRepository<Order, Integer> {
     @EntityGraph(attributePaths = {"items", "items.product"})
     @Query("SELECT o FROM Order o WHERE o.id IN :orderIds")
     List<Order> findOrdersWithItems(@Param("orderIds") List<Integer> orderIds);
+
+    Order findOrderById(Integer orderId);
 }

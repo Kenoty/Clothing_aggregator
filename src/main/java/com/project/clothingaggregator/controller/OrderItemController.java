@@ -2,11 +2,9 @@ package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
-import com.project.clothingaggregator.repository.OrderItemRepository;
-import com.project.clothingaggregator.repository.ProductRepository;
 import com.project.clothingaggregator.service.OrderItemService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,16 +16,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/order-items")
+@RequiredArgsConstructor
 public class OrderItemController {
 
-    @Autowired
-    private OrderItemRepository orderItemRepository;
-
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    OrderItemService orderItemService;
+    private final OrderItemService orderItemService;
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderItemResponseDto> getOrderItemById(@PathVariable Integer id) {

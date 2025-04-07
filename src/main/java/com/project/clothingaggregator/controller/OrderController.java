@@ -6,7 +6,7 @@ import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.dto.OrderResponseDto;
 import com.project.clothingaggregator.service.OrderService;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,10 +19,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/orders")
+@RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequest orderRequest) {
@@ -32,6 +32,11 @@ public class OrderController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponseDto>> getOrdersByUser(@PathVariable Integer userId) {
         return orderService.getOrders(userId);
+    }
+
+    @GetMapping("/order/{orderId}")
+    public ResponseEntity<OrderResponseDto> getOrderById(@PathVariable Integer orderId) {
+        return ResponseEntity.ok(orderService.getOrderById(orderId));
     }
 
     @PutMapping("/{id}")

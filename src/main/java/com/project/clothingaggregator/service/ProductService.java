@@ -6,16 +6,16 @@ import com.project.clothingaggregator.entity.Product;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.ProductMapper;
 import com.project.clothingaggregator.repository.ProductRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
-    @Autowired
-    private ProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public ProductDto createProduct(ProductRequest productRequest) {
         return ProductMapper.toResponse(productRepository

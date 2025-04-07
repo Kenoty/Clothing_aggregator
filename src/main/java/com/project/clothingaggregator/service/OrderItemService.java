@@ -1,6 +1,5 @@
 package com.project.clothingaggregator.service;
 
-import com.project.clothingaggregator.config.EbayConfig;
 import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.entity.OrderItem;
@@ -10,9 +9,7 @@ import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.ProductRepository;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 
 @Service
 public class OrderItemService {

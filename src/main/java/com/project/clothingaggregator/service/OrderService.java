@@ -17,25 +17,19 @@ import com.project.clothingaggregator.repository.ProductRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class OrderService {
 
-    @Autowired
-    OrderRepository orderRepository;
 
-    @Autowired
-    UserRepository userRepository;
-
-    @Autowired
-    ProductRepository productRepository;
-
-    @Autowired
-    OrderItemRepository orderItemRepository;
+    private final OrderRepository orderRepository;
+    private final UserRepository userRepository;
+    private final ProductRepository productRepository;
+    private final OrderItemRepository orderItemRepository;
 
     public ResponseEntity<OrderResponseDto> createOrder(OrderRequest request) {
         Optional<User> userOptional = userRepository.findById(request.getUserId());
@@ -50,6 +44,16 @@ public class OrderService {
     public ResponseEntity<List<OrderResponseDto>> getOrders(Integer userId) {
         return ResponseEntity.ok(orderRepository.findByUserId(userId).stream()
                 .map(OrderMapper::toResponse).toList());
+    }
+
+    public OrderResponseDto getOrderById(Integer orderId) {
+        Optional<Order> orderOptional = orderRepository.findById(orderId);
+        if (orderOptional.isEmpty()) {
+            throw new NotFoundException();
+        }
+
+        Order order = orderOptional.get();
+        return OrderMapper.toResponse(order);
     }
 
     public ResponseEntity<OrderResponseDto>  updateOrder(Integer id, OrderRequest orderRequest) {

@@ -7,7 +7,7 @@ import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.mapper.UserMapper;
 import com.project.clothingaggregator.model.UserModel;
 import com.project. clothingaggregator.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
@@ -22,12 +22,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @PostMapping("/register")
     public ResponseEntity<UserModel> registerUser(@RequestBody UserRegistrationRequest request) {
@@ -59,11 +61,7 @@ public class UserController {
     }
 
     @GetMapping("/all")
-    public  PagedModel<EntityModel<UserWithOrdersDto>> getAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            PagedResourcesAssembler<UserWithOrdersDto> assembler) {
-        return assembler.toModel(userService
-                .getAllUsersWithOrdersAndProducts(page, size));
+    public  ResponseEntity<List<UserWithOrdersDto>> getAll() {
+        return ResponseEntity.ok(userService.getAllUsersWithOrdersAndProducts());
     }
 }

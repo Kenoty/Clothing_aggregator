@@ -8,12 +8,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
 
     @EntityGraph(attributePaths = {"orders"})
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.orders")
-    Page<User> findAllWithOrders(Pageable pageable);
+    List<User> findAllWithOrders();
 
     @EntityGraph(attributePaths = {"favorites"})
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.favorites")
