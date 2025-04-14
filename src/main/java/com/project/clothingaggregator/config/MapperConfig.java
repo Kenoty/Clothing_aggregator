@@ -13,10 +13,10 @@ public class MapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-        modelMapper.typeMap(Product.class, ProductDto.class)
-                .addMappings(mapper -> {
-                    mapper.map(Product::getProductId, ProductDto::setProductId);
-                });
+//        modelMapper.typeMap(Product.class, ProductDto.class)
+//                .addMappings(mapper -> {
+//                    mapper.map(Product::getProductId, ProductDto::setProductId);
+//                });
 
         return modelMapper;
     }

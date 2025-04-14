@@ -27,8 +27,8 @@ public class UserFavoriteService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found"));
 
-        final Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+//        final Product product = productRepository.findById(productId)
+//                .orElseThrow(() -> new NotFoundException("Product not found"));
 
         if (userFavoriteRepository.existsById(new UserFavoriteId(userId, productId))) {
             throw new AlreadyExistsException("Product already in favorites");
@@ -37,7 +37,7 @@ public class UserFavoriteService {
         UserFavorite favorite = new UserFavorite();
         favorite.setId(new UserFavoriteId(userId, productId));
         favorite.setUser(user);
-        favorite.setProduct(product);
+        //favorite.setProduct(product);
 
         return userFavoriteRepository.save(favorite);
     }

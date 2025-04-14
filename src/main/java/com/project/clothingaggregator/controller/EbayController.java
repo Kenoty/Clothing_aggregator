@@ -1,7 +1,8 @@
 package com.project.clothingaggregator.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.project.clothingaggregator.service.EbayAuthService;
+import com.project.clothingaggregator.service.EbayService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -15,15 +16,11 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping("/api/ebay")
+@RequiredArgsConstructor
 public class EbayController {
 
-    private final EbayAuthService authService;
+    private final EbayService authService;
     private final WebClient webClient;
-
-    public EbayController(EbayAuthService authService, WebClient ebayWebClient) {
-        this.authService = authService;
-        this.webClient = ebayWebClient;
-    }
 
     @GetMapping("/search")
     public Mono<ResponseEntity<JsonNode>> searchItems(@RequestParam String query) {

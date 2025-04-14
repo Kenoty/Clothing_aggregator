@@ -22,8 +22,8 @@ public class Product {
     @Column(name = "product_id")
     private Integer productId;
 
-    @Column(name = "external_id")
-    private String externalReferenceId;
+//    @Column(name = "external_id")
+//    private String externalReferenceId;
 
     @Column(name = "source_system")
     private String sourceSystem;

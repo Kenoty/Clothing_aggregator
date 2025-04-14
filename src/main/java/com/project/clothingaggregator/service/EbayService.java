@@ -2,6 +2,8 @@ package com.project.clothingaggregator.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.clothingaggregator.config.EbayConfig;
+import com.project.clothingaggregator.dto.EbayItemDto;
+import java.time.Duration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
@@ -9,12 +11,12 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @Service
-public class EbayAuthService {
+public class EbayService {
 
     private final WebClient webClient;
     private final EbayConfig ebayConfig;
 
-    public EbayAuthService(WebClient ebayWebClient, EbayConfig ebayConfig) {
+    public EbayService(WebClient ebayWebClient, EbayConfig ebayConfig) {
         this.webClient = ebayWebClient;
         this.ebayConfig = ebayConfig;
     }
@@ -41,5 +43,18 @@ public class EbayAuthService {
                 })
                 .doOnNext(token -> System.out.println("Successfully obtained eBay token"))
                 .doOnError(e -> System.err.println("Error getting eBay token: " + e.getMessage()));
+    }
+
+    public Mono<EbayItemDto> fetchProductDetails(String itemId) { // вызывать его при получении списка продуктов и добавлении в бд
+        return webClient.get()
+                .uri("/buy/v1/item/{itemId}", itemId)
+                .header("Authorization", "Bearer " + getAccessToken())
+                .retrieve()
+                .bodyToMono(EbayItemDto.class)
+                .timeout(Duration.ofSeconds(5))
+                .onErrorResume(e -> {
+                    System.err.println("Ebay API error for item " + itemId);
+                    return Mono.empty();
+                });
     }
 }

@@ -13,7 +13,7 @@ public class ProductMapper {
 
     public static Product toEntity(ProductRequest request) {
         Product product = new Product();
-        product.setExternalReferenceId(request.getExternalId());
+       // product.setExternalReferenceId(request.getExternalId());
         product.setSourceSystem(request.getSourceSystem());
         product.setName(request.getName());
         product.setPrice(request.getPrice());

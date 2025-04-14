@@ -2,18 +2,18 @@ package com.project.clothingaggregator.mapper;
 
 import com.project.clothingaggregator.dto.OrderWithProductsDto;
 import com.project.clothingaggregator.dto.ProductDto;
+import com.project.clothingaggregator.dto.UserDto;
 import com.project.clothingaggregator.dto.UserWithOrdersDto;
 import com.project.clothingaggregator.entity.OrderItem;
 import com.project.clothingaggregator.entity.User;
-import com.project.clothingaggregator.model.UserModel;
 import org.modelmapper.ModelMapper;
 
 public class UserMapper {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-    public static UserModel toModel(User user) {
-        return modelMapper.map(user, UserModel.class);
+    public static UserDto toModel(User user) {
+        return modelMapper.map(user, UserDto.class);
     }
 
     public static UserWithOrdersDto toUserWithOrdersDto(User user) {

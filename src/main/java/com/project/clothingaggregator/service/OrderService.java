@@ -92,17 +92,17 @@ public class OrderService {
         return ResponseEntity.noContent().build();
     }
 
-    public OrderItemResponseDto addItemToOrder(Integer orderId, OrderItemRequest request) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Order not found"));
-
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
-
-        order.addItem(new OrderItem(product));
-
-        orderRepository.save(order);
-        return OrderItemMapper.toResponse(orderItemRepository
-                .save(OrderItemMapper.toEntity(product, order)));
-    }
+//    public OrderItemResponseDto addItemToOrder(Integer orderId, OrderItemRequest request) {
+//        Order order = orderRepository.findById(orderId)
+//                .orElseThrow(() -> new NotFoundException("Order not found"));
+//
+//        Product product = productRepository.findById(request.getProductId())
+//                .orElseThrow(() -> new NotFoundException("Product not found"));
+//
+//        order.addItem(new OrderItem(product));
+//
+//        orderRepository.save(order);
+//        return OrderItemMapper.toResponse(orderItemRepository
+//                .save(OrderItemMapper.toEntity(product, order)));
+//    }
 }

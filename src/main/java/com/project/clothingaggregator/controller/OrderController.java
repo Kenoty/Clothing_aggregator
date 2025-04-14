@@ -51,10 +51,10 @@ public class OrderController {
         return orderService.deleteOrder(id);
     }
 
-    @PostMapping("/{orderId}/items")
-    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
-            @PathVariable Integer orderId,
-            @RequestBody OrderItemRequest request) {
-        return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
-    }
+//    @PostMapping("/{orderId}/items")
+//    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
+//            @PathVariable Integer orderId,
+//            @RequestBody OrderItemRequest request) {
+//        return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
+//    }
 }

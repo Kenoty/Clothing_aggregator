@@ -3,27 +3,20 @@ package com.project.clothingaggregator.service;
 import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.entity.OrderItem;
-import com.project.clothingaggregator.entity.Product;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.ProductRepository;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
     private final ProductRepository productRepository;
-
-    public OrderItemService(
-            OrderItemRepository orderItemRepository,
-            ProductRepository productRepository
-    ) {
-        this.orderItemRepository = orderItemRepository;
-        this.productRepository = productRepository;
-    }
 
     public OrderItemResponseDto getOrderItemById(Integer id) {
         return OrderItemMapper.toResponse(orderItemRepository.findById(id)
@@ -39,10 +32,10 @@ public class OrderItemService {
         OrderItem orderItem = orderItemRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
 
-        Product product = productRepository.findById(request.getProductId())
-                .orElseThrow(NotFoundException::new);
+        // Product product = productRepository.findById(request.getProductId())
+            //    .orElseThrow(NotFoundException::new);
 
-        orderItem.setProduct(product);
+       // orderItem.setProduct(product);
 
         return OrderItemMapper.toResponse(orderItemRepository.save(orderItem));
     }
