@@ -17,14 +17,18 @@ public class EbayClothingItem {
     private String itemId;
 
     private String title;
+
     @Column(nullable = false)
     private String brand;
-    @Column(nullable = false)
-    private String category;
 
-    @Column(length = 1000)
+    @Column(name = "category", nullable = false)
+    private String categoryPath;
+
+    @Column(name = "image_url", length = 1000)
     private String imageUrl;
 
-    private boolean isActive;
+    @Column(name = "item_web_url", length = 1000)
+    private String itemWebUrl;
+
     private LocalDateTime lastUpdated;
 }

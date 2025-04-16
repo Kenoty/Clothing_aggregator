@@ -11,6 +11,8 @@ public class EbayItemMapper {
     public static final ModelMapper modelMapper = new ModelMapper();
 
     public static EbayClothingItem toEntity(ItemSummary item) {
-        return modelMapper.map(item, EbayClothingItem.class);
+        EbayClothingItem ebayItem = modelMapper.map(item, EbayClothingItem.class);
+        ebayItem.setImageUrl(item.getImage().getImageUrl());
+        return ebayItem;
     }
 }

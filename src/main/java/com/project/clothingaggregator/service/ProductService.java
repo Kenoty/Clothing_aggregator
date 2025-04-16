@@ -14,11 +14,15 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 @Service
 @RequiredArgsConstructor
@@ -60,37 +64,37 @@ public class ProductService {
 //        productRepository.deleteById(id);
 //    }
 
-    @Cacheable(value = "products", key = "#itemId")
-    public ProductDto getProductDetails(String itemId) {
-        EbayClothingItem item = productRepository.findById(itemId)
-                .orElseThrow(() -> new NotFoundException("Product not found"));
+//    @Cacheable(value = "products", key = "#itemId")
+//    public ProductDto getProductDetails(String itemId) {
+//        EbayClothingItem item = productRepository.findById(itemId)
+//                .orElseThrow(() -> new NotFoundException("Product not found"));
+//
+//        EbayItemDto apiData = ebayApi.fetchProductDetails(itemId)
+//                .blockOptional()
+//                .orElse(null);
+//
+//        return buildProductDto(item, apiData);
+//    }
 
-        EbayItemDto apiData = ebayApi.fetchProductDetails(itemId)
-                .blockOptional()
-                .orElse(null);
-
-        return buildProductDto(item, apiData);
-    }
-
-    public List<ProductDto> searchProducts(String query, String brand, String category) {
-        List<EbayClothingItem> items = productRepository.searchItems(query, brand, category);
-
-        return items.parallelStream()
-                .map(item -> {
-                    EbayItemDto apiData = ebayApi.fetchProductDetails(item.getItemId())
-                            .blockOptional()
-                            .orElse(null);
-                    return buildProductDto(item, apiData);
-                })
-                .collect(Collectors.toList());
-    }
+//    public List<ProductDto> searchProducts(String query, String brand, String category) {
+//        List<EbayClothingItem> items = productRepository.searchItems(query, brand, category);
+//
+//        return items.parallelStream()
+//                .map(item -> {
+//                    EbayItemDto apiData = ebayApi.fetchProductDetails(item.getItemId())
+//                            .blockOptional()
+//                            .orElse(null);
+//                    return buildProductDto(item, apiData);
+//                })
+//                .collect(Collectors.toList());
+//    }
 
     private ProductDto buildProductDto(EbayClothingItem item, EbayItemDto apiData) {
         ProductDto.ProductDtoBuilder builder = ProductDto.builder()
                 .itemId(item.getItemId())
                 .title(item.getTitle())
                 .brand(item.getBrand())
-                .category(item.getCategory())
+                .category(item.getCategoryPath())
                 .imageUrl(item.getImageUrl());
 
         if (apiData != null) {
@@ -101,86 +105,166 @@ public class ProductService {
         return builder.build();
     }
 
-    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
-    public void updateCatalog() {
-        ebayApi.getAccessToken()
-                .flatMap(token -> {
-
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.set("Authorization", "Bearer " + token);
-                    headers.set("X-EBAY-C-MARKETPLACE-ID", "EBAY_US");
-
-                    String url = EBAY_API_URL + "?category_ids=" + CLOTHING_CATEGORY_ID + "&limit=200";
-
-                    return WebClient.create()
-                            .get()
-                            .uri(url)
-                            .headers(h -> h.addAll(headers))
-                            .retrieve()
-                            .toEntity(EbaySearchResponse.class);
-                })
-                .doOnSuccess(response -> {
-                    if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                        List<ItemSummary> items = Arrays.asList(response.getBody().getItemSummaries());
-                        saveOrUpdateClothingItems(items);
-                        System.out.println("Обновлено товаров: " + items.size());
-                    } else {
-                        System.err.println("Ошибка eBay API: " + response.getStatusCode());
-                    }
-                })
-                .doOnError(error -> {
-                    System.err.println("Ошибка при обновлении каталога: " + error.getMessage());
-                    if (error instanceof WebClientResponseException.Unauthorized) {
-                        System.err.println("Токен недействителен, требуется обновление!");
-                    }
-                })
-                .subscribe();
-    }
-
-    private void saveOrUpdateClothingItems(List<ItemSummary> items) {
-        if (items == null || items.isEmpty()) {
-            return;
-        }
-
-        items.forEach(ebayItem -> {
-            try {
-                EbayClothingItem ebayClothingItem = EbayItemMapper.toEntity(ebayItem);
-
-                Optional<EbayClothingItem> existingItem = productRepository
-                        .findById(ebayItem.getItemId());
-
-                if (existingItem.isPresent()) {
-                    EbayClothingItem itemToUpdate = existingItem.get();
-                    updateCatalogItemFields(itemToUpdate, ebayClothingItem);
-                    productRepository.save(itemToUpdate);
-//                    log.debug("Товар обновлен: {}", ebayItem.getItemId());
-                } else {
-                    productRepository.save(ebayClothingItem);
-//                    log.debug("Товар добавлен: {}", ebayItem.getItemId());
-                }
-            } catch (Exception e) {
-                System.err.println("Ошибка при обработке товара "
-                        + ebayItem.getItemId() + ":" + e.getMessage());
-            }
-        });
-    }
-
-    private void updateCatalogItemFields(EbayClothingItem existing, EbayClothingItem newData) {
-        if (!Objects.equals(existing.getTitle(), newData.getTitle())) {
-            existing.setTitle(newData.getTitle());
-        }
-
-        if (!Objects.equals(existing.getBrand(), newData.getBrand())) {
-            existing.setBrand(newData.getBrand());
-        }
-
-        if (!Objects.equals(existing.getCategory(), newData.getCategory())) {
-            existing.setCategory(newData.getCategory());
-        }
-
-        if (!Objects.equals(existing.getImageUrl(), newData.getImageUrl())) {
-            existing.setImageUrl(newData.getImageUrl());
-        }
-        existing.setLastUpdated(LocalDateTime.now());
-    }
+//    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
+//    public void updateCatalog() {
+//        ebayApi.getAccessToken()
+//                .flatMap(token -> {
+//
+//                    final String accessToken = token;
+//
+//                    HttpHeaders headers = new HttpHeaders();
+//                    headers.set("Authorization", "Bearer " + token);
+//                    headers.set("X-EBAY-C-MARKETPLACE-ID", "EBAY_CA");
+//
+//                    String url = EBAY_API_URL + "?category_ids=" + CLOTHING_CATEGORY_ID + "&limit=200";
+//
+//                    return WebClient.create()
+//                            .get()
+//                            .uri(url)
+//                            .headers(h -> h.addAll(headers))
+//                            .retrieve()
+//                            .toEntity(EbaySearchResponse.class);
+//                })
+//                .flatMap(response -> {
+//                    if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+//                        return Mono.error(new RuntimeException("Ошибка API: " + response.getStatusCode()));
+//                    }
+//
+//                    List<String> itemIds = Arrays.stream(response.getBody().getItemSummaries())
+//                            .map(ItemSummary::getItemId)
+//                            .filter(Objects::nonNull)
+//                            .collect(Collectors.toList());
+//
+//                    String accessToken;
+//                    return Flux.fromIterable(itemIds)
+//                            .flatMap(id -> ebayApi.fetchProductDetails(id, accessToken))
+//                            .collectList()
+//                                    .flatMap(this::saveOrUpdateClothingItems);
+//                })
+////                .flatMap(items -> {
+////                    if (items.isEmpty()) {
+////                       // System.println.("Нет товаров для обновления");
+////                        return Mono.empty();
+////                    }
+////                    return productRepository.saveAll(items)
+////                            .then(Mono.just(items.size()));
+////                })
+//                .subscribe(
+//                       // count -> log.info("Обновлено товаров: {}", count),
+//                        //error -> log.error("Ошибка обновления каталога", error)
+//                );
+//    }
+//    @Scheduled(fixedRate = 24 * 60 * 60 * 1000)
+//    public void updateCatalog() {
+//        ebayApi.getAccessToken()
+//                .flatMap(token -> getItemSummaries(token)
+//                        .flatMap(summaries -> processItems(summaries, token)))
+//                .subscribe();
+//    }
+//
+//    private Mono<ResponseEntity<EbaySearchResponse>> getItemSummaries(String token) {
+//        HttpHeaders headers = new HttpHeaders();
+//        headers.set("Authorization", "Bearer " + token);
+//        headers.set("X-EBAY-C-MARKETPLACE-ID", "EBAY_CA");
+//
+//        String url = EBAY_API_URL + "?category_ids=" + CLOTHING_CATEGORY_ID + "&limit=200";
+//
+//        return WebClient.create()
+//                .get()
+//                .uri(url)
+//                .headers(h -> h.addAll(headers))
+//                .retrieve()
+//                .toEntity(EbaySearchResponse.class);
+//    }
+//
+//    private Mono<Void> processItems(ResponseEntity<EbaySearchResponse> response, String token) {
+//        if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
+//            return Mono.error(new RuntimeException("Ошибка API: " + response.getStatusCode()));
+//        }
+//
+//        List<String> itemIds = Arrays.stream(response.getBody().getItemSummaries())
+//                .map(ItemSummary::getItemId)
+//                .filter(Objects::nonNull)
+//                .collect(Collectors.toList());
+//
+//        return Flux.fromIterable(itemIds)
+//                .flatMap(id -> ebayApi.fetchProductDetails(id, token))
+//                .collectList()
+//                .flatMap(this::saveOrUpdateClothingItems);
+//    }
+//
+////    private void saveOrUpdateClothingItems(List<ItemSummary> items) {
+////        if (items == null || items.isEmpty()) {
+////            return;
+////        }
+////
+////        items.forEach(ebayItem -> {
+////            try {
+////                EbayClothingItem ebayClothingItem = EbayItemMapper.toEntity(ebayItem);
+////
+////                Optional<EbayClothingItem> existingItem = productRepository
+////                        .findById(ebayItem.getItemId());
+////
+////                if (existingItem.isPresent()) {
+////                    EbayClothingItem itemToUpdate = existingItem.get();
+////                    updateCatalogItemFields(itemToUpdate, ebayClothingItem);
+////                    productRepository.save(itemToUpdate);
+//////                    log.debug("Товар обновлен: {}", ebayItem.getItemId());
+////                } else {
+////                    productRepository.save(ebayClothingItem);
+//////                    log.debug("Товар добавлен: {}", ebayItem.getItemId());
+////                }
+////            } catch (Exception e) {
+////                System.err.println("Ошибка при обработке товара "
+////                        + ebayItem.getItemId() + ":" + e.getMessage());
+////            }
+////        });
+////    }
+//
+//    private Mono<Void> saveOrUpdateClothingItems(List<ItemSummary> items) {
+//        if (items == null || items.isEmpty()) {
+//            return Mono.empty();
+//        }
+//
+//        return Mono.fromRunnable(() -> {
+//            items.forEach(ebayItem -> {
+//                try {
+//                    EbayClothingItem ebayClothingItem = EbayItemMapper.toEntity(ebayItem);
+//
+//                    Optional<EbayClothingItem> existingItem = productRepository
+//                            .findById(ebayItem.getItemId());
+//
+//                    if (existingItem.isPresent()) {
+//                        EbayClothingItem itemToUpdate = existingItem.get();
+//                        updateCatalogItemFields(itemToUpdate, ebayClothingItem);
+//                        productRepository.save(itemToUpdate);
+//                    } else {
+//                        productRepository.save(ebayClothingItem);
+//                    }
+//                } catch (Exception e) {
+//                    System.err.println("Ошибка при обработке товара "
+//                            + ebayItem.getItemId() + ":" + e.getMessage());
+//                }
+//            });
+//        }).subscribeOn(Schedulers.boundedElastic()).then();
+//    }
+//
+//    private void updateCatalogItemFields(EbayClothingItem existing, EbayClothingItem newData) {
+//        if (!Objects.equals(existing.getTitle(), newData.getTitle())) {
+//            existing.setTitle(newData.getTitle());
+//        }
+//
+//        if (!Objects.equals(existing.getBrand(), newData.getBrand())) {
+//            existing.setBrand(newData.getBrand());
+//        }
+//
+//        if (!Objects.equals(existing.getCategory(), newData.getCategory())) {
+//            existing.setCategory(newData.getCategory());
+//        }
+//
+//        if (!Objects.equals(existing.getImageUrl(), newData.getImageUrl())) {
+//            existing.setImageUrl(newData.getImageUrl());
+//        }
+//        existing.setLastUpdated(LocalDateTime.now());
+//    }
 }

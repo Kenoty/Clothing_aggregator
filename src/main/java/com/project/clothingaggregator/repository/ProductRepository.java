@@ -13,7 +13,7 @@ public interface ProductRepository extends JpaRepository<EbayClothingItem, Strin
 
     @Query("SELECT c FROM EbayClothingItem c WHERE "
             + "(:brand IS NULL OR c.brand = :brand) AND "
-            + "(:category IS NULL OR c.category = :category) AND "
+            + "(:category IS NULL OR c.categoryPath = :category) AND "
             + "(:query IS NULL OR LOWER(c.title) LIKE LOWER(CONCAT('%', :query, '%')))")
     List<EbayClothingItem> searchItems(
             @Param("query") String query,
