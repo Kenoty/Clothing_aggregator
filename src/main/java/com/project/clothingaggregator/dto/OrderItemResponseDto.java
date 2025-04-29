@@ -7,5 +7,5 @@ import lombok.Setter;
 @Setter
 public class OrderItemResponseDto {
     private Integer orderId;
-    private ProductDto productDto;
+    private EbayItemDto itemDto;
 }

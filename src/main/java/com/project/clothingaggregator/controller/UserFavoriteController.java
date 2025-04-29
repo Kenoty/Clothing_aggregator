@@ -24,9 +24,9 @@ public class UserFavoriteController {
     @PostMapping
     public ResponseEntity<UserFavoriteDto> addToFavorites(
             @RequestParam Integer userId,
-            @RequestParam Integer productId) {
+            @RequestParam String itemId) {
         return ResponseEntity.ok(UserFavoriteMapper.toResponse(userFavoriteService
-                .addToFavorites(userId, productId)));
+                .addToFavorites(userId, itemId)));
     }
 
     @GetMapping("/user/{userId}")
@@ -39,16 +39,16 @@ public class UserFavoriteController {
     @GetMapping("/check")
     public ResponseEntity<Boolean> checkIfFavorite(
             @RequestParam Integer userId,
-            @RequestParam Integer productId) {
-        boolean isFavorite = userFavoriteService.isFavorite(userId, productId);
+            @RequestParam String itemId) {
+        boolean isFavorite = userFavoriteService.isFavorite(userId, itemId);
         return ResponseEntity.ok(isFavorite);
     }
 
     @DeleteMapping
     public ResponseEntity<Void> removeFromFavorites(
             @RequestParam Integer userId,
-            @RequestParam Integer productId) {
-        userFavoriteService.removeFromFavorites(userId, productId);
+            @RequestParam String itemId) {
+        userFavoriteService.removeFromFavorites(userId, itemId);
         return ResponseEntity.noContent().build();
     }
 

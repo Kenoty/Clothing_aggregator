@@ -10,5 +10,5 @@ public class UserWithOrdersDto {
     private String username;
     private String email;
     private LocalDate birthday;
-    private List<OrderWithProductsDto> orders;
+    private List<OrderWithItemsDto> orders;
 }

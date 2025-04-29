@@ -26,12 +26,12 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequest orderRequest) {
-        return orderService.createOrder(orderRequest);
+        return ResponseEntity.ok(orderService.createOrder(orderRequest));
     }
 
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<OrderResponseDto>> getOrdersByUser(@PathVariable Integer userId) {
-        return orderService.getOrders(userId);
+        return ResponseEntity.ok(orderService.getOrders(userId));
     }
 
     @GetMapping("/order/{orderId}")
@@ -43,18 +43,19 @@ public class OrderController {
     public ResponseEntity<OrderResponseDto> updateOrder(
             @PathVariable Integer id,
             @RequestBody OrderRequest orderRequest) {
-        return orderService.updateOrder(id, orderRequest);
+        return ResponseEntity.ok(orderService.updateOrder(id, orderRequest));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
-        return orderService.deleteOrder(id);
+        orderService.deleteOrder(id);
+        return ResponseEntity.noContent().build();
     }
 
-//    @PostMapping("/{orderId}/items")
-//    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
-//            @PathVariable Integer orderId,
-//            @RequestBody OrderItemRequest request) {
-//        return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
-//    }
+    @PostMapping("/{orderId}/items")
+    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
+            @PathVariable Integer orderId,
+            @RequestBody OrderItemRequest request) {
+        return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
+    }
 }

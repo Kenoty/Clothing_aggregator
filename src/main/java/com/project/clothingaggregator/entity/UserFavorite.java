@@ -31,10 +31,10 @@ public class UserFavorite {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @MapsId("productId")
+    @MapsId("itemId")
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @OnDelete(action = OnDeleteAction.RESTRICT)
-    @JoinColumn(name = "product_id", nullable = false)
-    private Product product;
+    @JoinColumn(name = "item_id", nullable = false)
+    private EbayClothingItem item;
 
 }

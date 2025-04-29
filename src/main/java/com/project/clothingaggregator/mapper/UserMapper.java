@@ -1,7 +1,7 @@
 package com.project.clothingaggregator.mapper;
 
-import com.project.clothingaggregator.dto.OrderWithProductsDto;
-import com.project.clothingaggregator.dto.ProductDto;
+import com.project.clothingaggregator.dto.EbayItemDto;
+import com.project.clothingaggregator.dto.OrderWithItemsDto;
 import com.project.clothingaggregator.dto.UserDto;
 import com.project.clothingaggregator.dto.UserWithOrdersDto;
 import com.project.clothingaggregator.entity.OrderItem;
@@ -21,14 +21,14 @@ public class UserMapper {
 
         userWithOrders.setOrders(user.getOrders().stream()
                 .map(order -> {
-                    OrderWithProductsDto orderWithProductsDto = modelMapper
-                            .map(order, OrderWithProductsDto.class);
+                    OrderWithItemsDto orderWithItemsDto = modelMapper
+                            .map(order, OrderWithItemsDto.class);
 
-                    orderWithProductsDto.setProducts(order.getItems().stream()
-                            .map(OrderItem::getProduct)
-                            .map(product -> modelMapper.map(product, ProductDto.class))
+                    orderWithItemsDto.setItems(order.getItems().stream()
+                            .map(OrderItem::getItem)
+                            .map(item -> modelMapper.map(item, EbayItemDto.class))
                             .toList());
-                    return orderWithProductsDto;
+                    return orderWithItemsDto;
                 })
                 .toList());
 

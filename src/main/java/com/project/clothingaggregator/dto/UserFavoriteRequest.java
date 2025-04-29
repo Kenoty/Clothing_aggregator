@@ -7,6 +7,6 @@ import lombok.Setter;
 @Getter
 public class UserFavoriteRequest {
     private Integer userId;
-    private Integer productId;
+    private String itemId;
 
 }

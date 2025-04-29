@@ -8,7 +8,7 @@ public class UserFavoriteMapper {
     public static UserFavoriteDto toResponse(UserFavorite favorite) {
         UserFavoriteDto dto = new UserFavoriteDto();
         dto.setUserId(favorite.getUser().getId());
-        dto.setProductDto(ProductMapper.toResponse(favorite.getProduct()));
+        dto.setItemDto(ItemMapper.toResponse(favorite.getItem()));
         return dto;
     }
 }

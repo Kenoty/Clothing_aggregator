@@ -4,21 +4,20 @@ import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.dto.OrderResponseDto;
+import com.project.clothingaggregator.entity.EbayClothingItem;
 import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.entity.OrderItem;
-import com.project.clothingaggregator.entity.Product;
-import com.project.clothingaggregator.entity.User;
+import com.project.clothingaggregator.exception.BadRequestException;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.mapper.OrderMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.OrderRepository;
-import com.project.clothingaggregator.repository.ProductRepository;
+import com.project.clothingaggregator.repository.ItemRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -28,22 +27,21 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ProductRepository productRepository;
+    private final ItemRepository itemRepository;
     private final OrderItemRepository orderItemRepository;
 
-    public ResponseEntity<OrderResponseDto> createOrder(OrderRequest request) {
-        Optional<User> userOptional = userRepository.findById(request.getUserId());
-        if (userOptional.isEmpty()) {
-            return ResponseEntity.badRequest().build();
+    public OrderResponseDto createOrder(OrderRequest request) {
+        if (userRepository.existsById(request.getUserId())) {
+            throw new BadRequestException("Bad request. Check user id");
         }
 
-        return ResponseEntity.ok(OrderMapper.toResponse(orderRepository
-                 .save(OrderMapper.toEntity(userOptional, request))));
+        return OrderMapper.toResponse(orderRepository
+                 .save(OrderMapper.toEntity(userRepository.findById(request.getUserId()), request)));
     }
 
-    public ResponseEntity<List<OrderResponseDto>> getOrders(Integer userId) {
-        return ResponseEntity.ok(orderRepository.findByUserId(userId).stream()
-                .map(OrderMapper::toResponse).toList());
+    public List<OrderResponseDto> getOrders(Integer userId) {
+        return orderRepository.findByUserId(userId).stream()
+                .map(OrderMapper::toResponse).toList();
     }
 
     public OrderResponseDto getOrderById(Integer orderId) {
@@ -56,19 +54,12 @@ public class OrderService {
         return OrderMapper.toResponse(order);
     }
 
-    public ResponseEntity<OrderResponseDto>  updateOrder(Integer id, OrderRequest orderRequest) {
-        Optional<Order> orderOptional = orderRepository.findById(id);
-        if (orderOptional.isEmpty()) {
-            return ResponseEntity.notFound().build();
-        }
-
-        Order order = orderOptional.get();
+    public OrderResponseDto  updateOrder(Integer id, OrderRequest orderRequest) {
+        Order order = orderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
         if (orderRequest.getUserId() != null) {
-            Optional<User> userOptional = userRepository.findById(orderRequest.getUserId());
-            if (userOptional.isEmpty()) {
-                return ResponseEntity.badRequest().build();
-            }
-            order.setUser(userOptional.get());
+            order.setUser(userRepository.findById(orderRequest.getUserId())
+                    .orElseThrow(() -> new BadRequestException("This user is not exist")));
         }
         if (orderRequest.getStatus() != null) {
             order.setStatus(orderRequest.getStatus());
@@ -81,28 +72,27 @@ public class OrderService {
         }
 
         Order updatedOrder = orderRepository.save(order);
-        return ResponseEntity.ok(OrderMapper.toResponse(updatedOrder));
+        return OrderMapper.toResponse(updatedOrder);
     }
 
-    public ResponseEntity<Void> deleteOrder(Integer id) {
+    public void deleteOrder(Integer id) {
         if (!orderRepository.existsById(id)) {
-            return ResponseEntity.notFound().build();
+            throw new NotFoundException("Order not found");
         }
         orderRepository.deleteById(id);
-        return ResponseEntity.noContent().build();
     }
 
-//    public OrderItemResponseDto addItemToOrder(Integer orderId, OrderItemRequest request) {
-//        Order order = orderRepository.findById(orderId)
-//                .orElseThrow(() -> new NotFoundException("Order not found"));
-//
-//        Product product = productRepository.findById(request.getProductId())
-//                .orElseThrow(() -> new NotFoundException("Product not found"));
-//
-//        order.addItem(new OrderItem(product));
-//
-//        orderRepository.save(order);
-//        return OrderItemMapper.toResponse(orderItemRepository
-//                .save(OrderItemMapper.toEntity(product, order)));
-//    }
+    public OrderItemResponseDto addItemToOrder(Integer orderId, OrderItemRequest request) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new NotFoundException("Order not found"));
+
+        EbayClothingItem item = itemRepository.findById(request.getItemId())
+                .orElseThrow(() -> new NotFoundException("Product not found"));
+
+        //order.addItem(new OrderItem(item));
+
+        //orderRepository.save(order);
+        return OrderItemMapper.toResponse(orderItemRepository
+                .save(OrderItemMapper.toEntity(item, order)));
+    }
 }

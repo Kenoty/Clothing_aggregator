@@ -2,6 +2,8 @@ package com.project.clothingaggregator.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+
+import java.io.Serial;
 import java.util.Objects;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,19 +13,20 @@ import org.hibernate.Hibernate;
 @Getter
 @Embeddable
 public class UserFavoriteId implements java.io.Serializable {
+    @Serial
     private static final long serialVersionUID = 138063364808096430L;
     @Column(name = "user_id", nullable = false)
     private Integer userId;
 
-    @Column(name = "product_id", nullable = false)
-    private Integer productId;
+    @Column(name = "item_id", nullable = false)
+    private String itemId;
 
     public UserFavoriteId() {
     }
 
-    public UserFavoriteId(Integer userId, Integer productId) {
+    public UserFavoriteId(Integer userId, String itemId) {
         this.userId = userId;
-        this.productId = productId;
+        this.itemId = itemId;
     }
 
     @Override
@@ -35,13 +38,13 @@ public class UserFavoriteId implements java.io.Serializable {
             return false;
         }
         UserFavoriteId entity = (UserFavoriteId) o;
-        return Objects.equals(this.productId, entity.productId)
+        return Objects.equals(this.itemId, entity.itemId)
                 && Objects.equals(this.userId, entity.userId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(productId, userId);
+        return Objects.hash(itemId, userId);
     }
 
 }

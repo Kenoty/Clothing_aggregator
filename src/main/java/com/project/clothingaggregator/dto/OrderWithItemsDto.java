@@ -5,10 +5,10 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class OrderWithProductsDto {
+public class OrderWithItemsDto {
     private Integer orderId;
     private String status;
     private BigDecimal totalAmount;
     private String shippingAddress;
-    private List<ProductDto> products;
+    private List<EbayItemDto> items;
 }

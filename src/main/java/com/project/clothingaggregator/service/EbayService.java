@@ -6,7 +6,7 @@ import com.project.clothingaggregator.dto.EbaySearchResponse;
 import com.project.clothingaggregator.dto.ItemSummary;
 import com.project.clothingaggregator.entity.EbayClothingItem;
 import com.project.clothingaggregator.mapper.EbayItemMapper;
-import com.project.clothingaggregator.repository.ProductRepository;
+import com.project.clothingaggregator.repository.ItemRepository;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -31,7 +31,7 @@ public class EbayService {
 
     private final WebClient webClient;
     private final EbayConfig ebayConfig;
-    private final ProductRepository productRepository;
+    private final ItemRepository itemRepository;
     private static final String EBAY_API_URL = "https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search";
     private static final String CLOTHING_CATEGORY_ID = "11450";
 
@@ -67,7 +67,6 @@ public class EbayService {
                 .header("X-EBAY-C-MARKETPLACE-ID", ebayConfig.getMarketplaceId())
                 .retrieve()
                 .bodyToMono(ItemSummary.class)
-                .doOnNext(item -> System.out.println("Десериализованный ItemSummary: " + item))
                 .timeout(Duration.ofSeconds(5))
                 .onErrorResume(e -> {
                     System.err.println("Ebay API error for item " + itemId + ": " + e.getMessage());
@@ -124,15 +123,15 @@ public class EbayService {
                 try {
                     EbayClothingItem ebayClothingItem = EbayItemMapper.toEntity(ebayItem);
 
-                    Optional<EbayClothingItem> existingItem = productRepository
+                    Optional<EbayClothingItem> existingItem = itemRepository
                             .findById(ebayItem.getItemId());
 
                     if (existingItem.isPresent()) {
                         EbayClothingItem itemToUpdate = existingItem.get();
                         updateCatalogItemFields(itemToUpdate, ebayClothingItem);
-                        productRepository.save(itemToUpdate);
+                        itemRepository.save(itemToUpdate);
                     } else {
-                        productRepository.save(ebayClothingItem);
+                        itemRepository.save(ebayClothingItem);
                     }
                 } catch (Exception e) {
                     System.err.println("Error processing item "

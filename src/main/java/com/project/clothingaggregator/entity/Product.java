@@ -37,9 +37,9 @@ public class Product {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @OneToMany(mappedBy = "product")
-    private List<OrderItem> orderItems;
+    //@OneToMany(mappedBy = "product")
+    //private List<OrderItem> orderItems;
 
-    @OneToMany(mappedBy = "product")
-    private List<UserFavorite> favorites;
+    //@OneToMany(mappedBy = "product")
+    //private List<UserFavorite> favorites;
 }

@@ -1,7 +1,5 @@
 package com.project.clothingaggregator.config;
 
-import com.project.clothingaggregator.dto.ProductDto;
-import com.project.clothingaggregator.entity.Product;
 import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

@@ -6,7 +6,7 @@ import com.project.clothingaggregator.entity.OrderItem;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.repository.OrderItemRepository;
-import com.project.clothingaggregator.repository.ProductRepository;
+import com.project.clothingaggregator.repository.ItemRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 public class OrderItemService {
 
     private final OrderItemRepository orderItemRepository;
-    private final ProductRepository productRepository;
+    private final ItemRepository itemRepository;
 
     public OrderItemResponseDto getOrderItemById(Integer id) {
         return OrderItemMapper.toResponse(orderItemRepository.findById(id)
