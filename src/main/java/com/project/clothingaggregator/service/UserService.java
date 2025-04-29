@@ -1,12 +1,12 @@
 package com.project.clothingaggregator.service;
 
+import com.project.clothingaggregator.cache.MyCache;
 import com.project.clothingaggregator.dto.UserRegistrationRequest;
 import com.project.clothingaggregator.dto.UserUpdateRequest;
 import com.project.clothingaggregator.dto.UserWithFavoritesDto;
 import com.project.clothingaggregator.dto.UserWithOrdersDto;
 import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.entity.User;
-import com.project.clothingaggregator.entity.UserFavorite;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.UserMapper;
 import com.project.clothingaggregator.repository.OrderRepository;
@@ -29,6 +29,7 @@ public class UserService {
     private final OrderRepository orderRepository;
     private final UserFavoriteRepository userFavoriteRepository;
     private final PasswordUtil passwordUtil;
+    private final MyCache<Integer, UserWithFavoritesDto> cache = new MyCache<>(100);
 
     public User createUser(UserRegistrationRequest request) {
         User user = new User();
@@ -90,17 +91,20 @@ public class UserService {
     }
 
     public List<UserWithFavoritesDto> getUsersByBrand(String brandName) {
-        List<User> users = userRepository.getAllByFavoriteBrand(brandName);
+        return userRepository.getAllByFavoriteBrand(brandName).stream()
+                .map(user -> {
+                    UserWithFavoritesDto cached = cache.get(user.getId());
+                    if (cached != null) {
+                        System.out.println("User " + user.getId() + " taken from cache");
+                        return cached;
+                    }
 
-        if (users.isEmpty()) {
-            System.out.println("Список пуст");
-        }
-
-        users.forEach(user ->
-                user.setFavorites(userFavoriteRepository.findAllByUserId(user.getId()))
-        );
-
-        return users.stream().map(UserMapper::toUserWithFavorites).toList();
+                    user.setFavorites(userFavoriteRepository.findAllByUserId(user.getId()));
+                    UserWithFavoritesDto dto = UserMapper.toUserWithFavorites(user);
+                    cache.put(user.getId(), dto);
+                    return dto;
+                })
+                .toList();
     }
 
 }
