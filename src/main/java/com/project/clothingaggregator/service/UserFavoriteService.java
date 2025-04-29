@@ -44,7 +44,7 @@ public class UserFavoriteService {
 
     @Transactional(readOnly = true)
     public List<UserFavorite> getUserFavorites(Integer userId) {
-        return userFavoriteRepository.findByUserId(userId);
+        return userFavoriteRepository.findAllByUserId(userId);
     }
 
     @Transactional(readOnly = true)

@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 public interface UserFavoriteRepository extends JpaRepository<UserFavorite, UserFavoriteId> {
 
     @Query("SELECT uf FROM UserFavorite uf WHERE uf.id.userId = :userId")
-    List<UserFavorite> findByUserId(@Param("userId") Integer userId);
+    List<UserFavorite> findAllByUserId(@Param("userId") Integer userId);
 
     @Query("SELECT COUNT(uf) FROM UserFavorite uf WHERE uf.id.userId = :userId")
     long countByUserId(@Param("userId") Integer userId);

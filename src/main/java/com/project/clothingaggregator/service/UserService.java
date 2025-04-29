@@ -2,12 +2,15 @@ package com.project.clothingaggregator.service;
 
 import com.project.clothingaggregator.dto.UserRegistrationRequest;
 import com.project.clothingaggregator.dto.UserUpdateRequest;
+import com.project.clothingaggregator.dto.UserWithFavoritesDto;
 import com.project.clothingaggregator.dto.UserWithOrdersDto;
 import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.entity.User;
+import com.project.clothingaggregator.entity.UserFavorite;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.UserMapper;
 import com.project.clothingaggregator.repository.OrderRepository;
+import com.project.clothingaggregator.repository.UserFavoriteRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import com.project.clothingaggregator.security.PasswordUtil;
 import java.util.List;
@@ -24,6 +27,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final OrderRepository orderRepository;
+    private final UserFavoriteRepository userFavoriteRepository;
     private final PasswordUtil passwordUtil;
 
     public User createUser(UserRegistrationRequest request) {
@@ -58,7 +62,7 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User not found"));
     }
 
-    public List<UserWithOrdersDto> getAllUsersWithOrdersAndProducts() {
+    public List<UserWithOrdersDto> getAllUsersWithOrdersAndItems() {
         List<User> users = userRepository.findAllWithOrders();
 
         List<Integer> orderIds = users.stream()
@@ -84,4 +88,19 @@ public class UserService {
 
         return users.stream().map(UserMapper::toUserWithOrdersDto).toList();
     }
+
+    public List<UserWithFavoritesDto> getUsersByBrand(String brandName) {
+        List<User> users = userRepository.getAllByFavoriteBrand(brandName);
+
+        if (users.isEmpty()) {
+            System.out.println("Список пуст");
+        }
+
+        users.forEach(user ->
+                user.setFavorites(userFavoriteRepository.findAllByUserId(user.getId()))
+        );
+
+        return users.stream().map(UserMapper::toUserWithFavorites).toList();
+    }
+
 }

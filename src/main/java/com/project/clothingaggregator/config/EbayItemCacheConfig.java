@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 public class EbayItemCacheConfig {
     @Bean
     public CaffeineCacheManager cacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("products");
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager("items");
         cacheManager.setCaffeine(Caffeine.newBuilder()
                 .maximumSize(10_000)
                 .expireAfterWrite(30, TimeUnit.MINUTES)

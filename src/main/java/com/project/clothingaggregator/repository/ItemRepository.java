@@ -1,7 +1,6 @@
 package com.project.clothingaggregator.repository;
 
 import com.project.clothingaggregator.entity.EbayClothingItem;
-
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

@@ -1,16 +1,11 @@
 package com.project.clothingaggregator.controller;
 
-import com.project.clothingaggregator.dto.UserDto;
-import com.project.clothingaggregator.dto.UserRegistrationRequest;
-import com.project.clothingaggregator.dto.UserUpdateRequest;
-import com.project.clothingaggregator.dto.UserWithOrdersDto;
+import com.project.clothingaggregator.dto.*;
 import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.mapper.UserMapper;
 import com.project. clothingaggregator.service.UserService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.web.PagedResourcesAssembler;
-import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.PagedModel;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/users")
@@ -62,6 +55,12 @@ public class UserController {
 
     @GetMapping("/all")
     public  ResponseEntity<List<UserWithOrdersDto>> getAll() {
-        return ResponseEntity.ok(userService.getAllUsersWithOrdersAndProducts());
+        return ResponseEntity.ok(userService.getAllUsersWithOrdersAndItems());
+    }
+
+    @GetMapping(value = "/all", params = "brand")
+    public ResponseEntity<List<UserWithFavoritesDto>> getAllByFavoriteBrand(
+            @RequestParam("brand") String brandName) {
+        return ResponseEntity.ok(userService.getUsersByBrand(brandName));
     }
 }

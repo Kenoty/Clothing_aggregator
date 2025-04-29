@@ -1,6 +1,9 @@
 package com.project.clothingaggregator.config;
 
+import com.project.clothingaggregator.dto.EbayItemDto;
+import com.project.clothingaggregator.entity.UserFavorite;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.PropertyMap;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -11,10 +14,12 @@ public class MapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-//        modelMapper.typeMap(Product.class, ProductDto.class)
-//                .addMappings(mapper -> {
-//                    mapper.map(Product::getProductId, ProductDto::setProductId);
-//                });
+        modelMapper.addMappings(new PropertyMap<UserFavorite, EbayItemDto>() {
+            @Override
+            protected void configure() {
+                map().setItemId(source.getItem().getItemId());
+            }
+        });
 
         return modelMapper;
     }

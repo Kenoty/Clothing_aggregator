@@ -12,9 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface OrderRepository extends JpaRepository<Order, Integer> {
     List<Order> findByUserId(Integer userId);
 
-    @EntityGraph(attributePaths = {"items", "items.product"})
+    @EntityGraph(attributePaths = {"items", "items.item"})
     @Query("SELECT o FROM Order o WHERE o.id IN :orderIds")
     List<Order> findOrdersWithItems(@Param("orderIds") List<Integer> orderIds);
-
-    Order findOrderById(Integer orderId);
 }

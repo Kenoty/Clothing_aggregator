@@ -2,7 +2,6 @@ package com.project.clothingaggregator.mapper;
 
 import com.project.clothingaggregator.dto.EbayItemDto;
 import com.project.clothingaggregator.entity.EbayClothingItem;
-import com.project.clothingaggregator.entity.Product;
 import org.modelmapper.ModelMapper;
 
 public class ItemMapper {

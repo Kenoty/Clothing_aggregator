@@ -1,14 +1,12 @@
 package com.project.clothingaggregator.repository;
 
 import com.project.clothingaggregator.entity.User;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import java.util.List;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Integer> {
@@ -19,5 +17,20 @@ public interface UserRepository extends JpaRepository<User, Integer> {
 
     @EntityGraph(attributePaths = {"favorites"})
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN u.favorites")
-    Page<User> findAllWithFavorites(Pageable pageable);
+    List<User> findAllWithFavorites();
+
+    //    @Query(value = """
+    //        SELECT DISTINCT * FROM users u
+    //        JOIN user_favorites f on u.id = f.user_id
+    //        JOIN ebay_items i on f.item_id = i.item_id
+    //        WHERE brand = :brandName
+    //        """, nativeQuery = true)
+
+    @Query("""
+        SELECT DISTINCT u FROM User u
+        JOIN u.favorites f
+        JOIN f.item i
+        WHERE i.brand = :brandName
+        """)
+    List<User> getAllByFavoriteBrand(@Param("brandName") String brandName);
 }

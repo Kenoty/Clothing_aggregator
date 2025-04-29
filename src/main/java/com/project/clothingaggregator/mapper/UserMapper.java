@@ -1,9 +1,6 @@
 package com.project.clothingaggregator.mapper;
 
-import com.project.clothingaggregator.dto.EbayItemDto;
-import com.project.clothingaggregator.dto.OrderWithItemsDto;
-import com.project.clothingaggregator.dto.UserDto;
-import com.project.clothingaggregator.dto.UserWithOrdersDto;
+import com.project.clothingaggregator.dto.*;
 import com.project.clothingaggregator.entity.OrderItem;
 import com.project.clothingaggregator.entity.User;
 import org.modelmapper.ModelMapper;
@@ -33,5 +30,18 @@ public class UserMapper {
                 .toList());
 
         return userWithOrders;
+    }
+
+    public static UserWithFavoritesDto toUserWithFavorites(User user) {
+        UserWithFavoritesDto userWithFavorites = new UserWithFavoritesDto();
+
+        userWithFavorites.setUserId(user.getId());
+        userWithFavorites.setBirthday(user.getBirthday());
+        userWithFavorites.setEmail(user.getEmail());
+        userWithFavorites.setUsername(user.getUsername());
+        userWithFavorites.setFavorites(user.getFavorites().stream()
+                .map(favorite -> EbayItemMapper.toDto(favorite.getItem())).toList());
+
+        return userWithFavorites;
     }
 }
