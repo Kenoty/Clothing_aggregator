@@ -2,6 +2,7 @@ package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.EbayItemDto;
 import com.project.clothingaggregator.service.ItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public class ItemController {
     private final ItemService itemService;
 
     @PostMapping
-    public ResponseEntity<EbayItemDto> createItem(@RequestBody EbayItemDto itemRequest) {
+    public ResponseEntity<EbayItemDto> createItem(@Valid @RequestBody EbayItemDto itemRequest) {
         return ResponseEntity.ok(itemService.createItem(itemRequest));
     }
 

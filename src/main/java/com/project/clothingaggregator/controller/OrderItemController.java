@@ -4,6 +4,8 @@ import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.service.OrderItemService;
 import java.util.List;
+
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,7 +37,7 @@ public class OrderItemController {
     @PutMapping("/{id}")
     public ResponseEntity<OrderItemResponseDto> updateOrderItem(
             @PathVariable Integer id,
-            @RequestBody OrderItemRequest orderItemRequest
+            @Valid @RequestBody OrderItemRequest orderItemRequest
     ) {
         return ResponseEntity.ok(orderItemService.updateOrderItem(id, orderItemRequest));
     }

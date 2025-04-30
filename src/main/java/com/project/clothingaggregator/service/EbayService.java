@@ -55,7 +55,7 @@ public class EbayService {
                     }
                     return Mono.just(response.get("access_token").asText());
                 })
-                .doOnNext(token -> System.out.println("Successfully obtained eBay token" + token))
+                .doOnNext(token -> System.out.println("Successfully obtained eBay token " + token))
                 .doOnError(e -> System.err.println("Error getting eBay token: " + e.getMessage()));
     }
 

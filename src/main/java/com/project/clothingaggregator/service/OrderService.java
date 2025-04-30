@@ -6,14 +6,12 @@ import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.dto.OrderResponseDto;
 import com.project.clothingaggregator.entity.EbayClothingItem;
 import com.project.clothingaggregator.entity.Order;
-import com.project.clothingaggregator.entity.OrderItem;
-import com.project.clothingaggregator.exception.BadRequestException;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.mapper.OrderMapper;
+import com.project.clothingaggregator.repository.ItemRepository;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.OrderRepository;
-import com.project.clothingaggregator.repository.ItemRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import java.util.List;
 import java.util.Optional;
@@ -31,12 +29,13 @@ public class OrderService {
     private final OrderItemRepository orderItemRepository;
 
     public OrderResponseDto createOrder(OrderRequest request) {
-        if (userRepository.existsById(request.getUserId())) {
-            throw new BadRequestException("Bad request. Check user id");
+        if (!userRepository.existsById(request.getUserId())) {
+            throw new NotFoundException("User not found. Check user id");
         }
 
         return OrderMapper.toResponse(orderRepository
-                 .save(OrderMapper.toEntity(userRepository.findById(request.getUserId()), request)));
+                 .save(OrderMapper.toEntity(
+                         userRepository.findById(request.getUserId()), request)));
     }
 
     public List<OrderResponseDto> getOrders(Integer userId) {
@@ -59,7 +58,7 @@ public class OrderService {
                 .orElseThrow(() -> new NotFoundException("Order not found"));
         if (orderRequest.getUserId() != null) {
             order.setUser(userRepository.findById(orderRequest.getUserId())
-                    .orElseThrow(() -> new BadRequestException("This user is not exist")));
+                    .orElseThrow(() -> new NotFoundException("This user is not exist")));
         }
         if (orderRequest.getStatus() != null) {
             order.setStatus(orderRequest.getStatus());
@@ -89,9 +88,6 @@ public class OrderService {
         EbayClothingItem item = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new NotFoundException("Product not found"));
 
-        //order.addItem(new OrderItem(item));
-
-        //orderRepository.save(order);
         return OrderItemMapper.toResponse(orderItemRepository
                 .save(OrderItemMapper.toEntity(item, order)));
     }

@@ -5,6 +5,7 @@ import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.dto.OrderResponseDto;
 import com.project.clothingaggregator.service.OrderService;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,8 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<OrderResponseDto> createOrder(@RequestBody OrderRequest orderRequest) {
+    public ResponseEntity<OrderResponseDto> createOrder(
+            @Valid @RequestBody OrderRequest orderRequest) {
         return ResponseEntity.ok(orderService.createOrder(orderRequest));
     }
 
@@ -42,7 +44,7 @@ public class OrderController {
     @PutMapping("/{id}")
     public ResponseEntity<OrderResponseDto> updateOrder(
             @PathVariable Integer id,
-            @RequestBody OrderRequest orderRequest) {
+            @Valid @RequestBody OrderRequest orderRequest) {
         return ResponseEntity.ok(orderService.updateOrder(id, orderRequest));
     }
 
@@ -55,7 +57,7 @@ public class OrderController {
     @PostMapping("/{orderId}/items")
     public ResponseEntity<OrderItemResponseDto> addItemToOrder(
             @PathVariable Integer orderId,
-            @RequestBody OrderItemRequest request) {
+            @Valid @RequestBody OrderItemRequest request) {
         return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
     }
 }
