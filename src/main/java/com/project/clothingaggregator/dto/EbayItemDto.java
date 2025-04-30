@@ -14,8 +14,8 @@ public class EbayItemDto {
     @NotBlank(message = "title must be not blank")
     private String title;
     private Price price;
-    @Valid
-    private Image image;
+
+    private Image image = new Image();
 
     @NotBlank(message = "brand must be not blank")
     private String brand;

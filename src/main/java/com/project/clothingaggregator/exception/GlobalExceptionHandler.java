@@ -1,5 +1,6 @@
 package com.project.clothingaggregator.exception;
 
+import java.io.IOException;
 import java.util.List;
 import org.springframework.data.crossstore.ChangeSetPersister;
 import org.springframework.http.HttpStatus;
@@ -40,5 +41,11 @@ public class GlobalExceptionHandler {
         System.out.println("Работает");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(new ErrorResponse("Validation failed", 400, ex.getErrors()));
+    }
+
+    @ExceptionHandler(IOException.class)
+    public ResponseEntity<String> handleIOException(IOException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error accessing log files: " + ex.getMessage());
     }
 }

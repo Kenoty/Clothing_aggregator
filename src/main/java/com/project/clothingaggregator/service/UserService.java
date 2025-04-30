@@ -13,6 +13,7 @@ import com.project.clothingaggregator.repository.OrderRepository;
 import com.project.clothingaggregator.repository.UserFavoriteRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import com.project.clothingaggregator.security.PasswordUtil;
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class UserService {
 
     private final UserRepository userRepository;

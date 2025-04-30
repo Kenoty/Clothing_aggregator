@@ -15,8 +15,13 @@ public class EbayItemMapper {
     }
 
     public static EbayItemDto toDto(EbayClothingItem item) {
-        EbayItemDto dto = modelMapper.map(item, EbayItemDto.class);
+        EbayItemDto dto = new EbayItemDto();
+        dto.setItemId(item.getItemId());
+        dto.setTitle(item.getTitle());
         dto.getImage().setImageUrl(item.getImageUrl());
+        dto.setBrand(item.getBrand());
+        dto.setCategoryPath(item.getCategoryPath());
+        dto.setItemWebUrl(item.getItemWebUrl());
         return dto;
     }
 }

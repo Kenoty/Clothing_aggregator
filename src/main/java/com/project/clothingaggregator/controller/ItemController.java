@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/items")
 @RequiredArgsConstructor
@@ -34,8 +36,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public Page<EbayItemDto> getAllItems(Pageable pageable) {
-        return itemService.getAllItems(pageable);
+    public ResponseEntity<List<EbayItemDto>> getAllItems() {
+        return ResponseEntity.ok(itemService.getAllItems());
     }
 
     @PutMapping("/{id}")

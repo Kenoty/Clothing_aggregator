@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class ItemService {
@@ -27,8 +29,8 @@ public class ItemService {
                 .orElseThrow(() -> new NotFoundException("User not found")));
     }
 
-    public Page<EbayItemDto> getAllItems(Pageable pageable) {
-        return itemRepository.findAll(pageable).map(ItemMapper::toResponse);
+    public List<EbayItemDto> getAllItems() {
+        return itemRepository.findAll().stream().map(ItemMapper::toResponse).toList();
     }
 
     public EbayItemDto updateItem(String id, EbayItemDto request) {

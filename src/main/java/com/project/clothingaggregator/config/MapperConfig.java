@@ -14,12 +14,12 @@ public class MapperConfig {
     public ModelMapper modelMapper() {
         ModelMapper modelMapper = new ModelMapper();
 
-        modelMapper.addMappings(new PropertyMap<UserFavorite, EbayItemDto>() {
-            @Override
-            protected void configure() {
-                map().setItemId(source.getItem().getItemId());
-            }
-        });
+//        modelMapper.addMappings(new PropertyMap<UserFavorite, EbayItemDto>() {
+//            @Override
+//            protected void configure() {
+//                map().setItemId(source.getItem().getItemId());
+//            }
+//        });
 
         return modelMapper;
     }
