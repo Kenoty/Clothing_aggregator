@@ -5,13 +5,9 @@ import com.project.clothingaggregator.entity.EbayClothingItem;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.ItemMapper;
 import com.project.clothingaggregator.repository.ItemRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor

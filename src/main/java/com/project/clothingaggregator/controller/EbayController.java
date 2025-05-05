@@ -2,6 +2,7 @@ package com.project.clothingaggregator.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.project.clothingaggregator.service.EbayService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -23,6 +24,10 @@ public class EbayController {
     private final WebClient webClient;
 
     @GetMapping("/search")
+    @Operation(
+            summary = "Search items on eBay",
+            description = "Performs a search on eBay marketplace using the provided query string. "
+                    + "Requires authentication with eBay API.")
     public Mono<ResponseEntity<JsonNode>> searchItems(@RequestParam String query) {
         return authService.getAccessToken()
                 .flatMap(accessToken ->

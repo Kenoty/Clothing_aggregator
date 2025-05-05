@@ -5,6 +5,7 @@ import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.service.OrderItemService;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -24,17 +25,26 @@ public class OrderItemController {
     private final OrderItemService orderItemService;
 
     @GetMapping("/{id}")
+    @Operation(
+            summary = "Get order item by ID",
+            description = "Retrieves a specific order item by its unique identifier")
     public ResponseEntity<OrderItemResponseDto> getOrderItemById(@PathVariable Integer id) {
         return ResponseEntity.ok(orderItemService.getOrderItemById(id));
     }
 
     @GetMapping("/order/{orderId}")
+    @Operation(
+            summary = "Get items by order ID",
+            description = "Retrieves all items belonging to a specific order")
     public ResponseEntity<List<OrderItemResponseDto>> getItemsByOrderId(
             @PathVariable Integer orderId) {
         return ResponseEntity.ok(orderItemService.getItemsByOrderId(orderId));
     }
 
     @PutMapping("/{id}")
+    @Operation(
+            summary = "Update order item",
+            description = "Updates an existing order item with new data")
     public ResponseEntity<OrderItemResponseDto> updateOrderItem(
             @PathVariable Integer id,
             @Valid @RequestBody OrderItemRequest orderItemRequest
@@ -43,6 +53,9 @@ public class OrderItemController {
     }
 
     @DeleteMapping("/{id}")
+    @Operation(
+            summary = "Delete order item",
+            description = "Removes an order item from the system")
     public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer id) {
         orderItemService.deleteOrderItem(id);
         return ResponseEntity.noContent().build();

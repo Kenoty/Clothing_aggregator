@@ -3,6 +3,8 @@ package com.project.clothingaggregator.controller;
 import com.project.clothingaggregator.service.LogService;
 import java.io.IOException;
 import java.time.LocalDate;
+
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,6 +24,9 @@ public class LogController {
     private final LogService logService;
 
     @GetMapping("/by-date")
+    @Operation(
+            summary = "Download logs by date",
+            description = "Downloads log file for specified date in plain text format")
     public ResponseEntity<Resource> getLogsByDate(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
             LocalDate date) throws IOException {

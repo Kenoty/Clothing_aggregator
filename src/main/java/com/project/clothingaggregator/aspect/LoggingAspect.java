@@ -18,13 +18,15 @@ public class LoggingAspect {
         logger.info("Вызов метода: {}", methodName);
     }
 
-    @AfterReturning(pointcut = "execution(* com.project.clothingaggregator..*.*(..))", returning = "result")
+    @AfterReturning(pointcut = "execution(* com.project.clothingaggregator..*.*(..))",
+            returning = "result")
     public void logMethodSuccess(JoinPoint joinPoint, Object result) {
         String methodName = joinPoint.getSignature().toShortString();
         logger.info("Метод {} выполнен успешно. Результат: {}", methodName, result);
     }
 
-    @AfterThrowing(pointcut = "execution(* com.project.clothingaggregator..*.*(..))", throwing = "ex")
+    @AfterThrowing(pointcut = "execution(* com.project.clothingaggregator..*.*(..))",
+            throwing = "ex")
     public void logMethodError(JoinPoint joinPoint, Exception ex) {
         String methodName = joinPoint.getSignature().toShortString();
         logger.error("Ошибка в методе {}: {}", methodName, ex.getMessage());
