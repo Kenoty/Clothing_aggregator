@@ -17,16 +17,12 @@ public class UserMapper {
         UserWithOrdersDto userWithOrders = modelMapper.map(user, UserWithOrdersDto.class);
 
         userWithOrders.setOrders(user.getOrders().stream()
-                .map(order -> {
-                    OrderWithItemsDto orderWithItemsDto = modelMapper
-                            .map(order, OrderWithItemsDto.class);
-
-                    orderWithItemsDto.setItems(order.getItems().stream()
+                .map(order ->
+                        OrderMapper.toOrderWithItems(order, order.getItems().stream()
                             .map(OrderItem::getItem)
                             .map(item -> modelMapper.map(item, EbayItemDto.class))
-                            .toList());
-                    return orderWithItemsDto;
-                })
+                            .toList())
+                )
                 .toList());
 
         return userWithOrders;

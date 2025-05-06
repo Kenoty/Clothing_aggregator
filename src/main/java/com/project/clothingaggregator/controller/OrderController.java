@@ -1,7 +1,5 @@
 package com.project.clothingaggregator.controller;
 
-import com.project.clothingaggregator.dto.OrderItemRequest;
-import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.dto.OrderResponseDto;
 import com.project.clothingaggregator.service.OrderService;
@@ -68,15 +66,5 @@ public class OrderController {
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @PostMapping("/{orderId}/items")
-    @Operation(
-            summary = "Add item to order",
-            description = "Adds a new item to an existing order")
-    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
-            @PathVariable Integer orderId,
-            @Valid @RequestBody OrderItemRequest request) {
-        return ResponseEntity.ok(orderService.addItemToOrder(orderId, request));
     }
 }

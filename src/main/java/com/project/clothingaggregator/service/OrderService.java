@@ -1,16 +1,10 @@
 package com.project.clothingaggregator.service;
 
-import com.project.clothingaggregator.dto.OrderItemRequest;
-import com.project.clothingaggregator.dto.OrderItemResponseDto;
 import com.project.clothingaggregator.dto.OrderRequest;
 import com.project.clothingaggregator.dto.OrderResponseDto;
-import com.project.clothingaggregator.entity.EbayClothingItem;
 import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.exception.NotFoundException;
-import com.project.clothingaggregator.mapper.OrderItemMapper;
 import com.project.clothingaggregator.mapper.OrderMapper;
-import com.project.clothingaggregator.repository.ItemRepository;
-import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.OrderRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import java.util.List;
@@ -22,11 +16,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrderService {
 
-
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
-    private final ItemRepository itemRepository;
-    private final OrderItemRepository orderItemRepository;
 
     public OrderResponseDto createOrder(OrderRequest request) {
         if (!userRepository.existsById(request.getUserId())) {
@@ -79,16 +70,5 @@ public class OrderService {
             throw new NotFoundException("Order not found");
         }
         orderRepository.deleteById(id);
-    }
-
-    public OrderItemResponseDto addItemToOrder(Integer orderId, OrderItemRequest request) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new NotFoundException("Order not found"));
-
-        EbayClothingItem item = itemRepository.findById(request.getItemId())
-                .orElseThrow(() -> new NotFoundException("Product not found"));
-
-        return OrderItemMapper.toResponse(orderItemRepository
-                .save(OrderItemMapper.toEntity(item, order)));
     }
 }

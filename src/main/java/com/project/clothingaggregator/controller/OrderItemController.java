@@ -2,20 +2,14 @@ package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.OrderItemRequest;
 import com.project.clothingaggregator.dto.OrderItemResponseDto;
+import com.project.clothingaggregator.dto.OrderWithItemsDto;
 import com.project.clothingaggregator.service.OrderItemService;
-import java.util.List;
-
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/order-items")
@@ -23,6 +17,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class OrderItemController {
 
     private final OrderItemService orderItemService;
+
+    @PostMapping("/{orderId}/item")
+    @Operation(
+            summary = "Add item to order",
+            description = "Adds a new item to an existing order")
+    public ResponseEntity<OrderItemResponseDto> addItemToOrder(
+            @PathVariable Integer orderId,
+            @Valid @RequestBody OrderItemRequest request) {
+        return ResponseEntity.ok(orderItemService.addItemToOrder(orderId, request));
+    }
+
+    @PostMapping("/{orderId}/items")
+    @Operation(
+            summary = "Add items to order",
+            description = "Adds multiple items to an existing order by their IDs. ")
+    public ResponseEntity<OrderWithItemsDto> addItemsToOrder(
+            @PathVariable Integer orderId,
+            @Valid @RequestBody List<String> itemIds) {
+        return ResponseEntity.ok(orderItemService.addItemsToOrder(orderId, itemIds));
+    }
 
     @GetMapping("/{id}")
     @Operation(
