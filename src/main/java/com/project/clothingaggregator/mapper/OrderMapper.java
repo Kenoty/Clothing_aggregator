@@ -10,12 +10,14 @@ import com.project.clothingaggregator.exception.NotFoundException;
 import java.util.List;
 import java.util.Optional;
 import org.modelmapper.ModelMapper;
+import org.springframework.stereotype.Component;
 
+@Component
 public class OrderMapper {
 
-    public static final ModelMapper modelMapper = new ModelMapper();
+    public final ModelMapper modelMapper = new ModelMapper();
 
-    public static Order toEntity(Optional<User> user, OrderRequest request) {
+    public Order toEntity(Optional<User> user, OrderRequest request) {
         Order order = new Order();
         order.setUser(user.orElseThrow(() ->
                 new NotFoundException("User not found")));
@@ -25,11 +27,11 @@ public class OrderMapper {
         return order;
     }
 
-    public static OrderResponseDto toResponse(Order entity) {
+    public OrderResponseDto toResponse(Order entity) {
         return modelMapper.map(entity, OrderResponseDto.class);
     }
 
-    public static OrderWithItemsDto toOrderWithItems(Order order, List<EbayItemDto> items) {
+    public OrderWithItemsDto toOrderWithItems(Order order, List<EbayItemDto> items) {
         OrderWithItemsDto result = new OrderWithItemsDto();
         result.setOrderId(order.getId());
         result.setStatus(order.getStatus());
