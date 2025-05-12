@@ -14,7 +14,6 @@ import com.project.clothingaggregator.mapper.OrderMapper;
 import com.project.clothingaggregator.repository.ItemRepository;
 import com.project.clothingaggregator.repository.OrderItemRepository;
 import com.project.clothingaggregator.repository.OrderRepository;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -27,15 +26,18 @@ public class OrderItemService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
     private final ItemRepository itemRepository;
+    private final OrderMapper orderMapper;
+    private final OrderItemMapper orderItemMapper;
+    private final EbayItemMapper ebayItemMapper;
 
     public OrderItemResponseDto getOrderItemById(Integer id) {
-        return OrderItemMapper.toResponse(orderItemRepository.findById(id)
+        return orderItemMapper.toResponse(orderItemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found")));
     }
 
     public List<OrderItemResponseDto> getItemsByOrderId(Integer orderId) {
         return orderItemRepository.findByOrderId(orderId).stream()
-                .map(OrderItemMapper::toResponse).toList();
+                .map(orderItemMapper::toResponse).toList();
     }
 
     public OrderItemResponseDto updateOrderItem(Integer id, OrderItemRequest request) {
@@ -46,7 +48,7 @@ public class OrderItemService {
                 .orElseThrow(NotFoundException::new);
 
         orderItem.setItem(item);
-        return OrderItemMapper.toResponse(orderItemRepository.save(orderItem));
+        return orderItemMapper.toResponse(orderItemRepository.save(orderItem));
     }
 
     public void deleteOrderItem(Integer id) {
@@ -63,8 +65,8 @@ public class OrderItemService {
         EbayClothingItem item = itemRepository.findById(request.getItemId())
                 .orElseThrow(() -> new NotFoundException("Item not found"));
 
-        return OrderItemMapper.toResponse(orderItemRepository
-                .save(OrderItemMapper.toEntity(item, order)));
+        return orderItemMapper.toResponse(orderItemRepository
+                .save(orderItemMapper.toEntity(item, order)));
     }
 
     public OrderWithItemsDto addItemsToOrder(Integer orderId, List<String> ids) {
@@ -74,12 +76,12 @@ public class OrderItemService {
         ids.forEach(id -> {
             EbayClothingItem item = itemRepository.findById(id)
                     .orElseThrow(() -> new NotFoundException("Item not found"));
-            orderItemRepository.save(OrderItemMapper.toEntity(item, order));
+            orderItemRepository.save(orderItemMapper.toEntity(item, order));
         });
 
         List<EbayItemDto> items = new ArrayList<>(orderItemRepository.findAllByOrderId(orderId))
-                .stream().map(EbayItemMapper::toDto).toList();
+                .stream().map(ebayItemMapper::toDto).toList();
 
-        return OrderMapper.toOrderWithItems(order, items);
+        return orderMapper.toOrderWithItems(order, items);
     }
 }

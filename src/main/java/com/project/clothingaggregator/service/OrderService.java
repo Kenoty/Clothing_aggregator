@@ -18,20 +18,21 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
     private final UserRepository userRepository;
+    private final OrderMapper orderMapper;
 
     public OrderResponseDto createOrder(OrderRequest request) {
         if (!userRepository.existsById(request.getUserId())) {
             throw new NotFoundException("User not found. Check user id");
         }
 
-        return OrderMapper.toResponse(orderRepository
-                 .save(OrderMapper.toEntity(
+        return orderMapper.toResponse(orderRepository
+                 .save(orderMapper.toEntity(
                          userRepository.findById(request.getUserId()), request)));
     }
 
     public List<OrderResponseDto> getOrders(Integer userId) {
         return orderRepository.findByUserId(userId).stream()
-                .map(OrderMapper::toResponse).toList();
+                .map(orderMapper::toResponse).toList();
     }
 
     public OrderResponseDto getOrderById(Integer orderId) {
@@ -41,7 +42,7 @@ public class OrderService {
         }
 
         Order order = orderOptional.get();
-        return OrderMapper.toResponse(order);
+        return orderMapper.toResponse(order);
     }
 
     public OrderResponseDto  updateOrder(Integer id, OrderRequest orderRequest) {
@@ -62,7 +63,7 @@ public class OrderService {
         }
 
         Order updatedOrder = orderRepository.save(order);
-        return OrderMapper.toResponse(updatedOrder);
+        return orderMapper.toResponse(updatedOrder);
     }
 
     public void deleteOrder(Integer id) {

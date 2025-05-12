@@ -32,6 +32,7 @@ public class EbayService {
     private final WebClient webClient;
     private final EbayConfig ebayConfig;
     private final ItemRepository itemRepository;
+    private final EbayItemMapper ebayItemMapper;
     private static final String EBAY_API_URL = "https://api.sandbox.ebay.com/buy/browse/v1/item_summary/search";
     private static final String CLOTHING_CATEGORY_ID = "11450";
 
@@ -82,22 +83,21 @@ public class EbayService {
                 .subscribe();
     }
 
-    private Mono<ResponseEntity<EbaySearchResponse>> getItemSummaries(String token) {
+    public Mono<ResponseEntity<EbaySearchResponse>> getItemSummaries(String token) {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + token);
         headers.set("X-EBAY-C-MARKETPLACE-ID", ebayConfig.getMarketplaceId());
 
         String url = EBAY_API_URL + "?category_ids=" + CLOTHING_CATEGORY_ID + "&limit=200";
 
-        return WebClient.create()
-                .get()
+        return webClient.get()
                 .uri(url)
                 .headers(h -> h.addAll(headers))
                 .retrieve()
                 .toEntity(EbaySearchResponse.class);
     }
 
-    private Mono<Void> processItems(ResponseEntity<EbaySearchResponse> response, String token) {
+    public Mono<Void> processItems(ResponseEntity<EbaySearchResponse> response, String token) {
         if (!response.getStatusCode().is2xxSuccessful() || response.getBody() == null) {
             return Mono.error(new RuntimeException("API error: " + response.getStatusCode()));
         }
@@ -113,7 +113,7 @@ public class EbayService {
                 .flatMap(this::saveOrUpdateClothingItems);
     }
 
-    private Mono<Void> saveOrUpdateClothingItems(List<ItemSummary> items) {
+    public Mono<Void> saveOrUpdateClothingItems(List<ItemSummary> items) {
         if (items == null || items.isEmpty()) {
             return Mono.empty();
         }
@@ -121,7 +121,7 @@ public class EbayService {
         return Mono.fromRunnable(() -> {
             items.forEach(ebayItem -> {
                 try {
-                    EbayClothingItem ebayClothingItem = EbayItemMapper.toEntity(ebayItem);
+                    EbayClothingItem ebayClothingItem = ebayItemMapper.toEntity(ebayItem);
 
                     Optional<EbayClothingItem> existingItem = itemRepository
                             .findById(ebayItem.getItemId());
@@ -141,7 +141,7 @@ public class EbayService {
         }).subscribeOn(Schedulers.boundedElastic()).then();
     }
 
-    private void updateCatalogItemFields(EbayClothingItem existing, EbayClothingItem newData) {
+    public void updateCatalogItemFields(EbayClothingItem existing, EbayClothingItem newData) {
         if (!Objects.equals(existing.getTitle(), newData.getTitle())) {
             existing.setTitle(newData.getTitle());
         }

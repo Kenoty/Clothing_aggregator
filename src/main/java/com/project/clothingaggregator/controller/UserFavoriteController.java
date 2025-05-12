@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserFavoriteController {
 
     private final UserFavoriteService userFavoriteService;
+    private final UserFavoriteMapper userFavoriteMapper;
 
     @PostMapping
     @Operation(
@@ -29,7 +30,7 @@ public class UserFavoriteController {
     public ResponseEntity<UserFavoriteDto> addToFavorites(
             @RequestParam Integer userId,
             @RequestParam String itemId) {
-        return ResponseEntity.ok(UserFavoriteMapper.toResponse(userFavoriteService
+        return ResponseEntity.ok(userFavoriteMapper.toResponse(userFavoriteService
                 .addToFavorites(userId, itemId)));
     }
 
@@ -40,7 +41,7 @@ public class UserFavoriteController {
     public ResponseEntity<List<UserFavoriteDto>> getUserFavorites(
             @PathVariable Integer userId) {
         return ResponseEntity.ok(userFavoriteService.getUserFavorites(userId)
-                .stream().map(UserFavoriteMapper::toResponse).toList());
+                .stream().map(userFavoriteMapper::toResponse).toList());
     }
 
     @GetMapping("/check")

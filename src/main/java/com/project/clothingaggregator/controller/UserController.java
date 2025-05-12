@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user",
@@ -38,7 +39,7 @@ public class UserController {
     public ResponseEntity<UserDto> registerUser(
             @Valid @RequestBody UserRegistrationRequest request) {
         User user = userService.createUser(request);
-        UserDto userDto = UserMapper.toModel(user);
+        UserDto userDto = userMapper.toModel(user);
         return ResponseEntity.ok(userDto);
     }
 
@@ -49,7 +50,7 @@ public class UserController {
             @PathVariable Integer id,
             @Valid @RequestBody UserUpdateRequest updateRequest) {
         User updatedUser = userService.updateUser(id, updateRequest);
-        UserDto userDto = UserMapper.toModel(updatedUser);
+        UserDto userDto = userMapper.toModel(updatedUser);
         return ResponseEntity.ok(userDto);
     }
 
@@ -66,7 +67,7 @@ public class UserController {
             description = "Retrieves a user by their ID.")
     public ResponseEntity<UserDto> getUserById(@PathVariable Integer id) {
         User user = userService.getUserById(id);
-        UserDto userDto = UserMapper.toModel(user);
+        UserDto userDto = userMapper.toModel(user);
         return ResponseEntity.ok(userDto);
     }
 

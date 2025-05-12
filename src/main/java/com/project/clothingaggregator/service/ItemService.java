@@ -14,26 +14,27 @@ import org.springframework.stereotype.Service;
 public class ItemService {
 
     private final ItemRepository itemRepository;
+    private final ItemMapper itemMapper;
 
     public EbayItemDto createItem(EbayItemDto itemRequest) {
-        return ItemMapper.toResponse(itemRepository
-                .save(ItemMapper.toEntity(itemRequest)));
+        return itemMapper.toResponse(itemRepository
+                .save(itemMapper.toEntity(itemRequest)));
     }
 
     public EbayItemDto getItem(String id) {
-        return ItemMapper.toResponse(itemRepository.findById(id)
+        return itemMapper.toResponse(itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("User not found")));
     }
 
     public List<EbayItemDto> getAllItems() {
-        return itemRepository.findAll().stream().map(ItemMapper::toResponse).toList();
+        return itemRepository.findAll().stream().map(itemMapper::toResponse).toList();
     }
 
     public EbayItemDto updateItem(String id, EbayItemDto request) {
         EbayClothingItem item = itemRepository.findById(id).orElseThrow(NotFoundException::new);
 
-        return ItemMapper.toResponse(itemRepository
-                .save(ItemMapper.updateFromRequest(request, item)));
+        return itemMapper.toResponse(itemRepository
+                .save(itemMapper.updateFromRequest(request, item)));
     }
 
     public void deleteItem(String id) {

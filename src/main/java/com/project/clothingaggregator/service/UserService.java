@@ -30,6 +30,7 @@ public class UserService {
     private final PasswordUtil passwordUtil;
     private final MyCache<Integer, UserWithFavoritesDto> cachedBrand = new MyCache<>(100);
     private final MyCache<Integer, User> cachedUsers = new MyCache<>(100);
+    private final UserMapper userMapper;
 
     public User createUser(UserRegistrationRequest request) {
         User user = new User();
@@ -98,7 +99,7 @@ public class UserService {
             );
         }
 
-        return users.stream().map(UserMapper::toUserWithOrdersDto).toList();
+        return users.stream().map(userMapper::toUserWithOrdersDto).toList();
     }
 
     public List<UserWithFavoritesDto> getUsersByBrand(String brandName) {
@@ -111,7 +112,7 @@ public class UserService {
                     }
 
                     user.setFavorites(userFavoriteRepository.findAllByUserId(user.getId()));
-                    UserWithFavoritesDto dto = UserMapper.toUserWithFavorites(user);
+                    UserWithFavoritesDto dto = userMapper.toUserWithFavorites(user);
                     cachedBrand.put(user.getId(), dto);
                     return dto;
                 })
