@@ -2,9 +2,11 @@ package com.project.clothingaggregator.service;
 
 import com.project.clothingaggregator.cache.MyCache;
 import com.project.clothingaggregator.dto.*;
+import com.project.clothingaggregator.entity.Order;
 import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.UserMapper;
+import com.project.clothingaggregator.repository.OrderRepository;
 import com.project.clothingaggregator.repository.UserFavoriteRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import com.project.clothingaggregator.security.PasswordUtil;
@@ -35,6 +37,9 @@ class UserServiceTest {
     private UserFavoriteRepository userFavoriteRepository;
 
     @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
     private PasswordUtil passwordUtil;
 
     @Mock
@@ -42,6 +47,9 @@ class UserServiceTest {
 
     @Mock
     private MyCache<Integer, User> cachedUsers;
+
+    @Mock
+    private VisitCounterService visitCounterService;
 
     @InjectMocks
     private UserService userService;
@@ -222,6 +230,54 @@ class UserServiceTest {
         verify(userFavoriteRepository).findAllByUserId(1);
         verify(userMapper).toUserWithFavorites(user);
         verify(cachedBrand).put(1, newDto);
+    }
+
+    @Test
+    void getAllUsersWithOrdersAndItems_ShouldReturnUsersWithOrders() {
+        User user = new User();
+        user.setId(1);
+        user.setUsername("testUser");
+
+        Order order = new Order();
+        order.setId(1);
+        order.setItems(Collections.emptyList());
+        user.setOrders(List.of(order));
+
+        when(userRepository.findAllWithOrders()).thenReturn(List.of(user));
+        when(orderRepository.findOrdersWithItems(List.of(1))).thenReturn(List.of(order));
+        when(userMapper.toUserWithOrdersDto(user)).thenReturn(new UserWithOrdersDto());
+
+        List<UserWithOrdersDto> result = userService.getAllUsersWithOrdersAndItems();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+    }
+
+    @Test
+    void getAllUsersWithOrdersAndItems_ShouldHandleNoOrders() {
+        User user = new User();
+        user.setId(1);
+        user.setUsername("testUser");
+        user.setOrders(Collections.emptyList());
+
+        when(userRepository.findAllWithOrders()).thenReturn(List.of(user));
+        when(userMapper.toUserWithOrdersDto(user)).thenReturn(new UserWithOrdersDto());
+
+        List<UserWithOrdersDto> result = userService.getAllUsersWithOrdersAndItems();
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        verify(orderRepository, never()).findOrdersWithItems(any());
+    }
+
+    @Test
+    void getAllUsersWithOrdersAndItems_ShouldThrowNotFoundException_WhenNoUsers() {
+        when(userRepository.findAllWithOrders()).thenReturn(Collections.emptyList());
+
+        List<UserWithOrdersDto> result = userService.getAllUsersWithOrdersAndItems();
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
 }

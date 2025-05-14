@@ -39,21 +39,13 @@ public class LogService {
             try {
                 Thread.sleep(1000);
                 taskStatusMap.put(taskId, TaskStatus.PROCESSING);
-                System.out.println("[" + Thread.currentThread().getName()
-                        + "] Status -> PROCESSING");
 
                 int sleepTime = isTestEnvironment() ? 200 : 30000;
-
                 Thread.sleep(sleepTime);
-                System.out.println("[" + Thread.currentThread().getName()
-                        + "] SleepTime -> " + sleepTime);
+
                 Path resultFile = processLogFile(date);
-                System.out.println("[" + Thread.currentThread().getName()
-                        + "] SleepTime -> " + sleepTime + " ended");
                 taskResultMap.put(taskId, resultFile);
                 taskStatusMap.put(taskId, TaskStatus.COMPLETED);
-                System.out.println("[" + Thread.currentThread().getName()
-                        + "] Status -> COMPLETED");
             } catch (Exception e) {
                 taskStatusMap.put(taskId, TaskStatus.FAILED);
             }

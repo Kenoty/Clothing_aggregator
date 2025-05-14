@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 
@@ -31,6 +32,10 @@ public class UserService {
     private final MyCache<Integer, UserWithFavoritesDto> cachedBrand = new MyCache<>(100);
     private final MyCache<Integer, User> cachedUsers = new MyCache<>(100);
     private final UserMapper userMapper;
+    private final VisitCounterService visitCounterService;
+
+    @Value("${api.users-all.url}")
+    private String apiUrl;
 
     public User createUser(UserRegistrationRequest request) {
         User user = new User();
@@ -76,6 +81,8 @@ public class UserService {
     }
 
     public List<UserWithOrdersDto> getAllUsersWithOrdersAndItems() {
+        visitCounterService.incrementCounter(apiUrl);
+
         List<User> users = userRepository.findAllWithOrders();
 
         List<Integer> orderIds = users.stream()

@@ -2,18 +2,14 @@ package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.dto.*;
 import com.project.clothingaggregator.entity.User;
-import com.project.clothingaggregator.exception.BadRequestException;
-import com.project.clothingaggregator.exception.ErrorResponse;
 import com.project.clothingaggregator.mapper.UserMapper;
 import com.project. clothingaggregator.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
