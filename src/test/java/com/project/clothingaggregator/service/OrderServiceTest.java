@@ -76,13 +76,11 @@ class OrderServiceTest {
 
     @Test
     void createOrder_InvalidUserId_ThrowsNotFoundException() {
-        // Arrange
         OrderRequest request = new OrderRequest();
         request.setUserId(99);
 
         when(userRepository.existsById(99)).thenReturn(false);
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> {
             orderService.createOrder(request);
         });
@@ -92,7 +90,6 @@ class OrderServiceTest {
 
     @Test
     void getOrders_ValidUserId_ReturnsOrderList() {
-        // Arrange
         Integer userId = 1;
         Order order1 = new Order();
         order1.setId(1);
@@ -108,10 +105,8 @@ class OrderServiceTest {
         when(orderMapper.toResponse(order1)).thenReturn(dto1);
         when(orderMapper.toResponse(order2)).thenReturn(dto2);
 
-        // Act
         List<OrderResponseDto> result = orderService.getOrders(userId);
 
-        // Assert
         assertEquals(2, result.size());
         assertEquals(1, result.get(0).getId());
         assertEquals(2, result.get(1).getId());
@@ -120,7 +115,6 @@ class OrderServiceTest {
 
     @Test
     void getOrderById_ExistingOrder_ReturnsOrderResponse() {
-        // Arrange
         Integer orderId = 1;
         Order order = new Order();
         order.setId(orderId);
@@ -131,10 +125,8 @@ class OrderServiceTest {
         when(orderRepository.findById(orderId)).thenReturn(Optional.of(order));
         when(orderMapper.toResponse(order)).thenReturn(expectedResponse);
 
-        // Act
         OrderResponseDto result = orderService.getOrderById(orderId);
 
-        // Assert
         assertNotNull(result);
         assertEquals(orderId, result.getId());
         verify(orderRepository).findById(orderId);
@@ -142,11 +134,9 @@ class OrderServiceTest {
 
     @Test
     void getOrderById_NonExistingOrder_ThrowsNotFoundException() {
-        // Arrange
         Integer orderId = 99;
         when(orderRepository.findById(orderId)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> {
             orderService.getOrderById(orderId);
         });
@@ -155,7 +145,6 @@ class OrderServiceTest {
 
     @Test
     void updateOrder_ValidUpdate_ReturnsUpdatedOrder() {
-        // Arrange
         Integer orderId = 1;
         OrderRequest updateRequest = new OrderRequest();
         updateRequest.setStatus("SHIPPED");
@@ -182,10 +171,8 @@ class OrderServiceTest {
         when(orderRepository.save(existingOrder)).thenReturn(savedOrder);
         when(orderMapper.toResponse(savedOrder)).thenReturn(expectedResponse);
 
-        // Act
         OrderResponseDto result = orderService.updateOrder(orderId, updateRequest);
 
-        // Assert
         assertNotNull(result);
         assertEquals("SHIPPED", result.getStatus());
         verify(orderRepository).findById(orderId);
@@ -194,7 +181,6 @@ class OrderServiceTest {
 
     @Test
     void updateOrder_ChangeUser_UpdatesUser() {
-        // Arrange
         Integer orderId = 1;
         Integer newUserId = 2;
         OrderRequest updateRequest = new OrderRequest();
@@ -218,10 +204,8 @@ class OrderServiceTest {
         when(orderRepository.save(existingOrder)).thenReturn(savedOrder);
         when(orderMapper.toResponse(savedOrder)).thenReturn(expectedResponse);
 
-        // Act
         OrderResponseDto result = orderService.updateOrder(orderId, updateRequest);
 
-        // Assert
         assertNotNull(result);
         verify(userRepository).findById(newUserId);
         verify(orderRepository).save(existingOrder);
@@ -229,25 +213,20 @@ class OrderServiceTest {
 
     @Test
     void deleteOrder_ExistingOrder_DeletesOrder() {
-        // Arrange
         Integer orderId = 1;
         when(orderRepository.existsById(orderId)).thenReturn(true);
 
-        // Act
         orderService.deleteOrder(orderId);
 
-        // Assert
         verify(orderRepository).existsById(orderId);
         verify(orderRepository).deleteById(orderId);
     }
 
     @Test
     void deleteOrder_NonExistingOrder_ThrowsNotFoundException() {
-        // Arrange
         Integer orderId = 99;
         when(orderRepository.existsById(orderId)).thenReturn(false);
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> {
             orderService.deleteOrder(orderId);
         });

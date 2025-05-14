@@ -1,6 +1,8 @@
 package com.project.clothingaggregator.service;
 
 import com.project.clothingaggregator.exception.NotFoundException;
+import com.project.clothingaggregator.model.TaskStatus;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
@@ -10,16 +12,20 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.Resource;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
+import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LogServiceTest {
@@ -27,13 +33,27 @@ class LogServiceTest {
     @TempDir
     Path tempDir;
 
+    @Mock
+    private Map<String, TaskStatus> taskStatusMap = new ConcurrentHashMap<>();
+
+    @Mock
+    private Map<String, Path> taskResultMap;
+
     @InjectMocks
     private LogService logService;
 
+    private Path logFile;
+
+    @BeforeEach
+    void setUp() {
+        System.setProperty("test.environment", "true");
+
+        logFile = tempDir.resolve("application.log");
+        ReflectionTestUtils.setField(logService, "logFilePath", logFile.toString());
+    }
+
     @Test
     void getLogByDate_ValidDate_ReturnsFilteredLog() throws IOException {
-        // Arrange
-        Path logFile = tempDir.resolve("application.log");
         Files.write(logFile, List.of(
                 "2023-05-01 Line 1",
                 "2023-05-01 Line 2",
@@ -41,14 +61,10 @@ class LogServiceTest {
                 "2023-05-01 Line 4"
         ));
 
-        ReflectionTestUtils.setField(logService, "logFilePath", logFile.toString());
-
         LocalDate filterDate = LocalDate.of(2023, 5, 1);
 
-        // Act
-        Resource result = logService.getLogByDate(filterDate);
+        Resource result = logService.getLogByDateSynchronized(filterDate);
 
-        // Assert
         assertNotNull(result);
         assertTrue(result.exists());
 
@@ -61,21 +77,15 @@ class LogServiceTest {
 
     @Test
     void getLogByDate_NoMatchingLines_ReturnsEmptyFile() throws IOException {
-        // Arrange
-        Path logFile = tempDir.resolve("application.log");
         Files.write(logFile, List.of(
                 "2023-05-02 Line 1",
                 "2023-05-02 Line 2"
         ));
 
-        ReflectionTestUtils.setField(logService, "logFilePath", logFile.toString());
-
         LocalDate filterDate = LocalDate.of(2023, 5, 1);
 
-        // Act
-        Resource result = logService.getLogByDate(filterDate);
+        Resource result = logService.getLogByDateSynchronized(filterDate);
 
-        // Assert
         assertNotNull(result);
         assertTrue(result.exists());
 
@@ -85,53 +95,149 @@ class LogServiceTest {
 
     @Test
     void getLogByDate_LogFileNotFound_ThrowsNotFoundException() {
-        // Arrange
         ReflectionTestUtils.setField(logService, "logFilePath", "/nonexistent/path.log");
         LocalDate filterDate = LocalDate.now();
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> {
-            logService.getLogByDate(filterDate);
+            logService.getLogByDateSynchronized(filterDate);
         });
     }
 
-//    @Test
-//    void getLogByDate_IOException_ThrowsUncheckedIOException() throws IOException {
-//        // Arrange
-//        Path logFile = tempDir.resolve("application.log");
-//        Files.write(logFile, List.of("2023-05-01 Test line"));
-//
-//        // Mock BufferedWriter to throw IOException
-//        try (var mockedFiles = mockStatic(Files.class)) {
-//            mockedFiles.when(() -> Files.lines(logFile)).thenReturn(Files.lines(logFile));
-//            mockedFiles.when(() -> Files.newBufferedWriter(any(Path.class)))
-//                    .thenThrow(new IOException("Test error"));
-//
-//            ReflectionTestUtils.setField(logService, "logFilePath", logFile.toString());
-//            LocalDate filterDate = LocalDate.of(2023, 5, 1);
-//
-//            // Act & Assert
-//            assertThrows(UncheckedIOException.class, () -> {
-//                logService.getLogByDate(filterDate);
-//            });
-//        }
-//    }
+    @Test
+    void startLogProcessing_ShouldReturnTaskIdAndSetPendingStatus() {
+        LocalDate date = LocalDate.now();
+        String taskId = logService.startLogProcessing(date);
 
-//    @Test
-//    void getLogByDate_ValidatesTempFileDeletedAfterUse() throws IOException {
-//        // Arrange
-//        Path logFile = tempDir.resolve("application.log");
-//        Files.write(logFile, List.of("2023-05-01 Test line"));
-//        ReflectionTestUtils.setField(logService, "logFilePath", logFile.toString());
-//
-//        // Act
-//        Resource result = logService.getLogByDate(LocalDate.of(2023, 5, 1));
-//
-//        // Assert - verify temp file is deleted when resource is closed
-//        Path tempFilePath = result.getFile().toPath();
-//        assertTrue(Files.exists(tempFilePath));
-//
-//        result.getInputStream().close(); // Simulate resource usage completion
-//        assertFalse(Files.exists(tempFilePath)); // File should be deleted
-//    }
+        assertNotNull(taskId);
+        assertDoesNotThrow(() -> UUID.fromString(taskId));
+        assertEquals(TaskStatus.PENDING, logService.getTaskStatus(taskId));
+    }
+
+    @Test
+    void getTaskStatus_ShouldReturnCorrectStatusLifecycle() {
+        LocalDate date = LocalDate.now();
+        String taskId = logService.startLogProcessing(date);
+
+        assertEquals(TaskStatus.PENDING, logService.getTaskStatus(taskId));
+
+        await().atMost(2, TimeUnit.SECONDS).until(() ->
+                TaskStatus.PROCESSING == logService.getTaskStatus(taskId));
+    }
+
+    @Test
+    void getLogFileById_ShouldReturnFileWhenTaskCompleted() throws IOException {
+        Files.write(logFile, List.of(
+                LocalDate.now() + " Test line 1",
+                LocalDate.now() + " Test line 2"
+        ));
+
+        String taskId = logService.startLogProcessing(LocalDate.now());
+
+        await().atMost(5, TimeUnit.SECONDS).until(() ->
+                TaskStatus.COMPLETED == logService.getTaskStatus(taskId));
+
+        Resource result = logService.getLogFileById(taskId);
+
+        assertNotNull(result);
+        assertTrue(result.exists());
+    }
+
+    @Test
+    void getLogFileById_ShouldThrowWhenTaskNotCompleted() {
+        String taskId = logService.startLogProcessing(LocalDate.now());
+
+        assertThrows(IllegalStateException.class, () ->
+                logService.getLogFileById(taskId));
+    }
+
+    @Test
+    void getLogFileById_ShouldThrowWhenTaskFailed() {
+        ReflectionTestUtils.setField(logService, "logFilePath", "/invalid/path.log");
+        String taskId = logService.startLogProcessing(LocalDate.now());
+
+        await().atMost(5, TimeUnit.SECONDS).until(() ->
+                TaskStatus.FAILED == logService.getTaskStatus(taskId));
+
+        assertThrows(IllegalStateException.class, () ->
+                logService.getLogFileById(taskId));
+    }
+
+    @Test
+    void processLogFile_ShouldHandleEmptyLogFile() throws IOException {
+        Files.createFile(logFile);
+
+        LocalDate date = LocalDate.now();
+        Path result = logService.processLogFile(date);
+
+        assertNotNull(result);
+        assertEquals(0, Files.readAllLines(result).size());
+    }
+
+    @Test
+    void processLogFile_ShouldCreateTempFileWithCorrectName() throws IOException {
+        Files.write(logFile, List.of(LocalDate.now() + " Test line"));
+
+        LocalDate date = LocalDate.now();
+        Path result = logService.processLogFile(date);
+
+        assertTrue(result.getFileName().toString().startsWith("logs-" + date));
+        assertTrue(result.getFileName().toString().endsWith(".log"));
+    }
+
+    @Test
+    public void testGetLogFileById_FilePathNull() throws NoSuchFieldException, IllegalAccessException {
+        taskStatusMap = new ConcurrentHashMap<>();
+
+        String taskId = "testTaskId";
+        taskStatusMap.put(taskId, TaskStatus.COMPLETED);
+        Field statusField = LogService.class.getDeclaredField("taskStatusMap");
+        statusField.setAccessible(true);
+        statusField.set(logService, taskStatusMap);
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            logService.getLogFileById(taskId);
+        });
+
+        assertEquals("Log file not found for task ID: " + taskId, exception.getMessage());
+    }
+
+    @Test
+    public void testGetLogFileById_FileNotExists() throws Exception {
+        taskStatusMap = new ConcurrentHashMap<>();
+
+        String taskId = "testTaskId";
+        taskStatusMap.put(taskId, TaskStatus.COMPLETED);
+        Field statusField = LogService.class.getDeclaredField("taskStatusMap");
+        statusField.setAccessible(true);
+        statusField.set(logService, taskStatusMap);
+
+        taskResultMap = new ConcurrentHashMap<>();
+
+        Path nonExistentFilePath = Path.of("non_existent_file.log");
+        taskResultMap.put(taskId, nonExistentFilePath);
+
+        Field resultField = LogService.class.getDeclaredField("taskResultMap");
+        resultField.setAccessible(true);
+        resultField.set(logService, taskResultMap);
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            logService.getLogFileById(taskId);
+        });
+
+        assertEquals("Log file not found for task ID: " + taskId, exception.getMessage());
+    }
+
+    @Test
+    public void testIsTestEnvironment_PropertyTrue() {
+        System.setProperty("test.environment", "true");
+        assertTrue(logService.isTestEnvironment());
+        System.clearProperty("test.environment");
+    }
+
+    @Test
+    public void testIsTestEnvironment_PropertyFalse() {
+        System.setProperty("test.environment", "false");
+        assertFalse(logService.isTestEnvironment());
+        System.clearProperty("test.environment");
+    }
 }

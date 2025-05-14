@@ -41,7 +41,6 @@ class UserFavoriteServiceTest {
 
     @Test
     void addToFavorites_ValidData_ReturnsFavorite() {
-        // Arrange
         User user = new User();
         user.setId(TEST_USER_ID);
 
@@ -59,10 +58,8 @@ class UserFavoriteServiceTest {
         when(userFavoriteRepository.existsById(favoriteId)).thenReturn(false);
         when(userFavoriteRepository.save(any(UserFavorite.class))).thenReturn(expectedFavorite);
 
-        // Act
         UserFavorite result = userFavoriteService.addToFavorites(TEST_USER_ID, TEST_ITEM_ID);
 
-        // Assert
         assertNotNull(result);
         assertEquals(TEST_USER_ID, result.getId().getUserId());
         assertEquals(TEST_ITEM_ID, result.getId().getItemId());
@@ -71,10 +68,8 @@ class UserFavoriteServiceTest {
 
     @Test
     void addToFavorites_UserNotFound_ThrowsNotFoundException() {
-        // Arrange
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> {
             userFavoriteService.addToFavorites(TEST_USER_ID, TEST_ITEM_ID);
         });
@@ -84,12 +79,10 @@ class UserFavoriteServiceTest {
 
     @Test
     void addToFavorites_ItemNotFound_ThrowsNotFoundException() {
-        // Arrange
         User user = new User();
         when(userRepository.findById(TEST_USER_ID)).thenReturn(Optional.of(user));
         when(itemRepository.findById(TEST_ITEM_ID)).thenReturn(Optional.empty());
 
-        // Act & Assert
         assertThrows(NotFoundException.class, () -> {
             userFavoriteService.addToFavorites(TEST_USER_ID, TEST_ITEM_ID);
         });
@@ -99,7 +92,6 @@ class UserFavoriteServiceTest {
 
     @Test
     void addToFavorites_AlreadyExists_ThrowsAlreadyExistsException() {
-        // Arrange
         User user = new User();
         EbayClothingItem item = new EbayClothingItem();
         UserFavoriteId favoriteId = new UserFavoriteId(TEST_USER_ID, TEST_ITEM_ID);
@@ -108,7 +100,6 @@ class UserFavoriteServiceTest {
         when(itemRepository.findById(TEST_ITEM_ID)).thenReturn(Optional.of(item));
         when(userFavoriteRepository.existsById(favoriteId)).thenReturn(true);
 
-        // Act & Assert
         assertThrows(AlreadyExistsException.class, () -> {
             userFavoriteService.addToFavorites(TEST_USER_ID, TEST_ITEM_ID);
         });
@@ -117,71 +108,56 @@ class UserFavoriteServiceTest {
 
     @Test
     void getUserFavorites_ValidUserId_ReturnsFavoritesList() {
-        // Arrange
         UserFavorite favorite1 = new UserFavorite();
         UserFavorite favorite2 = new UserFavorite();
 
         when(userFavoriteRepository.findAllByUserId(TEST_USER_ID)).thenReturn(List.of(favorite1, favorite2));
 
-        // Act
         List<UserFavorite> result = userFavoriteService.getUserFavorites(TEST_USER_ID);
 
-        // Assert
         assertEquals(2, result.size());
         verify(userFavoriteRepository).findAllByUserId(TEST_USER_ID);
     }
 
     @Test
     void isFavorite_Exists_ReturnsTrue() {
-        // Arrange
         UserFavoriteId favoriteId = new UserFavoriteId(TEST_USER_ID, TEST_ITEM_ID);
         when(userFavoriteRepository.existsById(favoriteId)).thenReturn(true);
 
-        // Act
         boolean result = userFavoriteService.isFavorite(TEST_USER_ID, TEST_ITEM_ID);
 
-        // Assert
         assertTrue(result);
         verify(userFavoriteRepository).existsById(favoriteId);
     }
 
     @Test
     void isFavorite_NotExists_ReturnsFalse() {
-        // Arrange
         UserFavoriteId favoriteId = new UserFavoriteId(TEST_USER_ID, TEST_ITEM_ID);
         when(userFavoriteRepository.existsById(favoriteId)).thenReturn(false);
 
-        // Act
         boolean result = userFavoriteService.isFavorite(TEST_USER_ID, TEST_ITEM_ID);
 
-        // Assert
         assertFalse(result);
         verify(userFavoriteRepository).existsById(favoriteId);
     }
 
     @Test
     void removeFromFavorites_ValidData_DeletesFavorite() {
-        // Arrange
         UserFavoriteId favoriteId = new UserFavoriteId(TEST_USER_ID, TEST_ITEM_ID);
         doNothing().when(userFavoriteRepository).deleteById(favoriteId);
 
-        // Act
         userFavoriteService.removeFromFavorites(TEST_USER_ID, TEST_ITEM_ID);
 
-        // Assert
         verify(userFavoriteRepository).deleteById(favoriteId);
     }
 
     @Test
     void countUserFavorites_ValidUserId_ReturnsCount() {
-        // Arrange
         long expectedCount = 5L;
         when(userFavoriteRepository.countByUserId(TEST_USER_ID)).thenReturn(expectedCount);
 
-        // Act
         long result = userFavoriteService.countUserFavorites(TEST_USER_ID);
 
-        // Assert
         assertEquals(expectedCount, result);
         verify(userFavoriteRepository).countByUserId(TEST_USER_ID);
     }

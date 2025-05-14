@@ -5,7 +5,6 @@ import com.project.clothingaggregator.dto.*;
 import com.project.clothingaggregator.entity.User;
 import com.project.clothingaggregator.exception.NotFoundException;
 import com.project.clothingaggregator.mapper.UserMapper;
-import com.project.clothingaggregator.repository.OrderRepository;
 import com.project.clothingaggregator.repository.UserFavoriteRepository;
 import com.project.clothingaggregator.repository.UserRepository;
 import com.project.clothingaggregator.security.PasswordUtil;
@@ -169,13 +168,10 @@ class UserServiceTest {
 
     @Test
     void getUsersByBrand_ShouldReturnEmptyListWhenNoUsersFound() {
-        // Arrange
         when(userRepository.getAllByFavoriteBrand("Nike")).thenReturn(Collections.emptyList());
 
-        // Act
         List<UserWithFavoritesDto> result = userService.getUsersByBrand("Nike");
 
-        // Assert
         assertTrue(result.isEmpty());
     }
 
