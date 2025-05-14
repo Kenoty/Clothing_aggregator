@@ -2,20 +2,16 @@ package com.project.clothingaggregator.controller;
 
 import com.project.clothingaggregator.model.TaskStatus;
 import com.project.clothingaggregator.service.LogService;
+import io.swagger.v3.oas.annotations.Operation;
 import java.io.IOException;
 import java.time.LocalDate;
-
-import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/logs")
