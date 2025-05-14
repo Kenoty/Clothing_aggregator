@@ -16,4 +16,9 @@ public class VisitCounterService {
     public Integer getVisitCount(String url) {
         return urlCounters.getOrDefault(url, new AtomicInteger(0)).get();
     }
+
+    public Integer resetCounter(String url) {
+        urlCounters.put(url, new AtomicInteger(0));
+        return 0;
+    }
 }

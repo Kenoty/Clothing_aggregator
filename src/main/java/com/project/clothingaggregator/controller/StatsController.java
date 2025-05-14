@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +24,10 @@ public class StatsController {
             description = "Returns the total number of visits to the API.")
     public ResponseEntity<Integer> getVisitCounter() {
         return ResponseEntity.ok(visitCounterService.getVisitCount(apiUrl));
+    }
+
+    @PutMapping("/reset")
+    public ResponseEntity<Integer> resetCounter() {
+        return ResponseEntity.ok(visitCounterService.resetCounter(apiUrl));
     }
 }
